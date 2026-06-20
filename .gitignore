@@ -17,8 +17,13 @@ credenciales.json
 .env.test.local
 .env.production.local
 
-# Archivos temporales de Editores y Office
+# Archivos temporales de Editores y Office e informes
 ~$*.docx
+*.docx
+*.zip
+guia_estudio_completa_pymeshield.md
+guia_presentacion_nota_maxima.md
+* - copia.html
 *.tmp
 .DS_Store
 Thumbs.db
