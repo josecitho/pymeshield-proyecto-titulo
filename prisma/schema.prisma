@@ -1,0 +1,80 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Device {
+  id           String   @id @default(uuid())
+  ip           String
+  mac          String   @unique
+  hostname     String
+  alias        String?
+  vendor       String?
+  status       String   // "Activo", "Inactivo", "Bloqueado"
+  riskLevel    String   // "Bajo", "Medio", "Alto"
+  isAuthorized Boolean  @default(true)
+  firstSeen    DateTime @default(now())
+  lastSeen     DateTime @default(now())
+  ports        Port[]
+}
+
+model Port {
+  id          String   @id @default(uuid())
+  portNumber  Int
+  serviceName String
+  riskLevel   String   // "Bajo", "Medio", "Alto"
+  description String?
+  deviceId    String
+  device      Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@unique([deviceId, portNumber])
+}
+
+model Alert {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  riskLevel   String   // "Rojo", "Amarillo", "Azul"
+  timestamp   DateTime @default(now())
+  status      String   // "No leída", "Leída" (or "Activa", "Archivada")
+}
+
+model Recommendation {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  priority    String   // "Alta", "Media", "Baja"
+  status      String   // "Pendiente", "Resuelta"
+}
+
+model ScanHistory {
+  id                 String   @id @default(uuid())
+  timestamp          DateTime @default(now())
+  devicesCount       Int
+  criticalAlertsCount Int
+  score              Int
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  action    String   // Categoría técnica (ej. "LOGIN_SUCCESS")
+  details   String   // Explicación didáctica en español simple
+  ipAddress String?  // IP origen
+}
+
+model Quote {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  company   String
+  endpoints String
+  plan      String
+  message   String?
+  createdAt DateTime @default(now())
+}
+

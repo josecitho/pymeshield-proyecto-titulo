@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PymeShield — Panel de Seguridad de Red</title>
+  <!-- Google Fonts: Outfit & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h1>PymeShield</h1>
+        <p>Panel de Seguridad de Red</p>
+      </div>
+      <div class="login-form">
+        <div class="login-field">
+          <label>Usuario</label>
+          <input type="text" id="login-user" placeholder="admin" autocomplete="username">
+        </div>
+        <div class="login-field">
+          <label>Contraseña</label>
+          <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="login-error" id="login-error"></div>
+        <button class="login-btn" onclick="doLogin()">Ingresar al Panel</button>
+        <p class="login-hint">Demo: admin / pymeshield2024</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div>
+        <h1>PymeShield</h1>
+        <p>Seguridad y Cumplimiento</p>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="switchTab('resumen', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Resumen de Red</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('dispositivos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        <span>Dispositivos</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('puertos', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        <span>Puertos Abiertos</span>
+      </div>
+      <div class="nav-section">Seguridad</div>
+      <div class="nav-item" onclick="switchTab('alertas', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Alertas</span>
+      </div>
+      <div class="nav-item" onclick="switchTab('recomendaciones', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Recomendaciones</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span id="network-status">Cargando red...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div>
+        <h2 id="section-title">Panel de Seguridad de Red</h2>
+        <p id="last-scan">Último escaneo: cargando...</p>
+      </div>
+      <div class="topbar-actions">
+        <!-- Demo Mode Toggle -->
+        <div class="demo-toggle-container">
+          <span class="demo-label">Modo Demostración</span>
+          <label class="switch">
+            <input type="checkbox" id="demo-toggle" checked onchange="toggleDemoMode()">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <button class="pdf-btn" onclick="downloadPDF()" title="Descargar reporte de cumplimiento PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Reporte PDF
+        </button>
+
+        <button class="scan-btn" onclick="runScan()" id="scan-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="scan-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Escanear Red
+        </button>
+      </div>
+    </header>
+
+    <!-- Scan Progress Container -->
+    <div class="scan-progress-container" id="scan-progress-bar">
+      <div class="progress-info">
+        <span class="progress-message" id="progress-msg">Iniciando auditoría de red local...</span>
+        <span class="progress-percent" id="progress-val">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- METRICS GRID -->
+    <section class="metrics" id="metrics-section">
+      <div class="metric-card blue">
+        <div class="metric-content">
+          <div class="metric-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Dispositivos Activos
+          </div>
+          <div class="metric-value" id="m-devices">0</div>
+          <div class="metric-sub" id="m-devices-sub">Monitoreados en la red</div>
+        </div>
+      </div>
+      
+      <div class="metric-card red">
+        <div class="metric-content">
+          <div class="metric-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Puertos en Riesgo
+          </div>
+          <div class="metric-value" id="m-ports">0</div>
+          <div class="metric-sub" id="m-ports-sub">Vulnerabilidades abiertas</div>
+        </div>
+      </div>
+
+      <div class="metric-card amber">
+        <div class="metric-content">
+          <div class="metric-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            Alertas No Leídas
+          </div>
+          <div class="metric-value" id="m-alerts">0</div>
+          <div class="metric-sub" id="m-alerts-sub">Requieren atención inmediata</div>
+        </div>
+      </div>
+
+      <div class="metric-card green" id="score-card">
+        <div class="metric-content flex-row">
+          <div>
+            <div class="metric-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Score de Seguridad
+            </div>
+            <div class="metric-value" id="m-score">100</div>
+            <div class="metric-sub" id="m-score-sub">Excelente estado</div>
+          </div>
+          <div class="score-ring-container">
+            <div class="score-ring">
+              <svg viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+                <circle cx="28" cy="28" r="24" fill="none" stroke="var(--green)" stroke-width="5" 
+                        stroke-dasharray="150" stroke-dashoffset="0" stroke-linecap="round" id="score-circle"/>
+              </svg>
+              <div class="score-num" id="score-num">100</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Security Score Trend Chart Card -->
+    <section class="card" id="trend-container" style="margin-bottom: 24px;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m18.7 8-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+          Historial de Score de Seguridad (Tendencia Temporal)
+        </div>
+        <span class="badge blue" id="trend-badge">Cargando tendencia...</span>
+      </div>
+      <div class="card-body padded" style="padding: 20px 24px;">
+        <div class="chart-container" style="position: relative; height: 180px; width: 100%;">
+          <svg id="trend-svg" viewBox="0 0 800 180" width="100%" height="100%" preserveAspectRatio="none" style="overflow: visible;">
+            <!-- Generated dynamically -->
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENT GRID (SPA SECTIONS) -->
+    <div class="content-grid">
+      <!-- Left Column: Devices List -->
+      <section class="card" id="devices-container">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Inventario de Dispositivos (NIST: IDENTIFICAR)
+          </div>
+          <span class="badge blue" id="devices-badge">0 encontrados</span>
+        </div>
+        <div class="table-controls-bar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="device-search" placeholder="Buscar por IP, MAC o nombre..." oninput="onDeviceSearchInput()">
+          </div>
+          <div class="filter-box">
+            <select id="device-filter" onchange="onDeviceFilterChange()">
+              <option value="todos">Todos los dispositivos</option>
+              <option value="activo">Dispositivos Activos</option>
+              <option value="inactivo">Dispositivos Inactivos</option>
+              <option value="bloqueado">Dispositivos Bloqueados</option>
+              <option value="sospechoso">Sospechosos (No Autorizados)</option>
+              <option value="vulnerable">Vulnerables (Con Puertos)</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body scroll-x">
+          <table>
+            <thead>
+              <tr>
+                <th>Dispositivo</th>
+                <th>Dirección IP / MAC</th>
+                <th>Estado</th>
+                <th>Nivel Riesgo</th>
+                <th>Autorización</th>
+                <th style="text-align: right">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="devices-tbody">
+              <!-- Dynamically populated -->
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">
+                  Cargando inventario de red...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Right Column: Port List & Recent Alerts -->
+      <div class="right-column" id="side-panels">
+        <!-- Exposed Ports -->
+        <section class="card" id="ports-container">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              Puertos Expuestos (NIST: PROTEGER)
+            </div>
+          </div>
+          <div class="card-body" id="ports-list">
+            <!-- Dynamically populated -->
+            <div class="empty-state">No se han detectado puertos vulnerables.</div>
+          </div>
+        </section>
+
+        <!-- Recent Alerts -->
+        <section class="card" id="alerts-container">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              Alertas del Sistema (NIST: DETECTAR)
+            </div>
+            <button class="text-btn" onclick="readAllAlerts()">Marcar leídas</button>
+          </div>
+          <div class="card-body" id="alerts-list">
+            <!-- Dynamically populated -->
+            <div class="empty-state">No hay alertas activas en el sistema.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <section class="card" id="recommendations-container" style="margin-top: 16px;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Recomendaciones y Plan de Acción (NIST: RESPONDER / RECUPERAR)
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="rec-grid" id="recommendations-list">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

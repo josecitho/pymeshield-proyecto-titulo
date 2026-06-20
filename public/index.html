@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- TÍTULO DE LA APLICACIÓN: Se despliega en la pestaña del navegador web -->
+  <title>PymeShield — Panel de Seguridad de Red</title>
+  
+  <!-- FUENTES DE GOOGLE: 'Outfit' para textos principales y 'Fira Code' para código/direcciones IP/direcciones MAC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- HOJA DE ESTILOS: Contiene las directivas de diseño, modo NOC, variables neón y glassmorphism -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================
+       OVERLAY DE INICIO DE SESIÓN Y DOBLE FACTOR (MFA)
+       ========================================== -->
+  <!-- Contenedor general que cubre toda la pantalla si el usuario no se ha autenticado -->
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-box glass">
+      <div class="login-header">
+        <!-- Logotipo oficial del proyecto inyectado en el portal de acceso -->
+        <div class="login-logo-image" style="text-align: center; margin-bottom: 15px; display: flex; justify-content: center;">
+          <img src="logo.png" alt="PymeShield Logo" style="width: 75px; height: 75px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.05); object-fit: contain;">
+        </div>
+        <h2>Acceso PymeShield</h2>
+        <p>Control de Ciberseguridad y Auditoría de Red</p>
+      </div>
+      
+      <!-- FORMULARIO 1: Validar credenciales de fábrica (admin / pymeshield2026) -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label for="username">Usuario</label>
+          <input type="text" id="username" placeholder="Ingresa tu usuario" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" placeholder="Ingresa tu contraseña" required autocomplete="current-password">
+        </div>
+        <!-- Contenedor para mostrar mensajes de error de autenticación en caso de contraseñas incorrectas -->
+        <div id="login-error" class="login-error" style="display: none;">
+          Credenciales incorrectas. Intente nuevamente.
+        </div>
+        <button type="submit" class="login-btn">
+          <span>Ingresar al Panel</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+
+      <!-- FORMULARIO 2: Validación de Doble Factor de Autenticación (MFA TOTP)
+           Se despliega únicamente si el primer paso de credenciales fue correcto -->
+      <form id="mfa-form" onsubmit="handleMfaVerify(event)" style="display: none;">
+        <p id="mfa-desc" style="margin-bottom: 20px; font-size: 13px; line-height: 1.5; color: var(--muted); text-align: center;">
+          Ingresa el código dinámico de 6 dígitos generado en tu aplicación móvil.
+        </p>
+        
+        <!-- CÓDIGO QR: Se despliega únicamente durante el primer inicio del software (Setup Inicial)
+             para enlazarlo con la aplicación móvil (Google Authenticator) -->
+        <div id="mfa-qr-container" style="display: none; justify-content: center; margin-bottom: 20px; padding: 10px; background: #fff; border-radius: var(--radius-md); max-width: 180px; margin-left: auto; margin-right: auto; box-shadow: 0 0 15px rgba(255,255,255,0.05);">
+          <!-- Inyectado dinámicamente desde el JS en base a una imagen QR codificada en Base64 -->
+        </div>
+
+        <div class="input-group" style="text-align: center;">
+          <label for="mfa-code" style="text-align: center; display: block;">Código de Seguridad de 6 dígitos</label>
+          <!-- Entrada optimizada para códigos de 6 dígitos, aplicando fuentes monoespaciadas y tracking ancho -->
+          <input type="text" id="mfa-code" placeholder="000000" maxlength="6" style="text-align: center; font-size: 24px; font-family: var(--font-code); letter-spacing: 0.2em; font-weight: 700; max-width: 200px; margin: 0 auto; display: block;" required autocomplete="off">
+        </div>
+        
+        <div id="mfa-error" class="login-error" style="display: none;">
+          Código incorrecto o expirado. Intente nuevamente.
+        </div>
+
+        <button type="submit" class="login-btn">
+          <span>Verificar Código</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       BARRA LATERAL DE NAVEGACIÓN (SIDEBAR)
+       ========================================== -->
+  <aside class="sidebar">
+    <!-- Encabezado del Sidebar con el Logo de PymeShield -->
+    <div class="logo" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="logo-image" style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <img src="logo.png" alt="PymeShield Logo" style="width: 32px; height: 32px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); object-fit: contain;">
+        </div>
+        <div>
+          <h1 style="font-size: 16px; font-weight: 800; color: #fff; margin: 0; line-height: 1.2;">PymeShield</h1>
+          <p style="font-size: 10px; color: var(--muted); margin: 0;">Seguridad y Cumplimiento</p>
+        </div>
+      </div>
+      <!-- BOTÓN DE COLAPSO INTERNO: Para esconder el menú directamente hacia la izquierda -->
+      <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Esconder menú">
+        &lsaquo;
+      </button>
+    </div>
+    
+    <!-- Enlaces de navegación con enrutamiento dinámico tipo SPA (Single Page Application)
+         Se invoca a la función JavaScript 'switchTab' enviándole el contenedor objetivo -->
+    <nav class="nav">
+      <!-- Grupo 1: Principal -->
+      <div class="nav-section-group">
+        <div class="nav-section" onclick="toggleNavSection(this)">
+          <span>Principal</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="nav-section-items">
+          <div class="nav-item active" onclick="switchTab('resumen', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Resumen de Red</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('dispositivos', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span>Dispositivos</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('puertos', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            <span>Puertos Abiertos</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Grupo 2: Seguridad -->
+      <div class="nav-section-group">
+        <div class="nav-section" onclick="toggleNavSection(this)">
+          <span>Seguridad</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="nav-section-items">
+          <div class="nav-item" onclick="switchTab('alertas', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>Alertas</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('audit', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 12V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 8h18"/></svg>
+            <span>Bitácora de Actividad</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('recomendaciones', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <span>Recomendaciones</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Grupo 3: Cumplimiento -->
+      <div class="nav-section-group">
+        <div class="nav-section" onclick="toggleNavSection(this)">
+          <span>Cumplimiento</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="nav-section-items">
+          <div class="nav-item" onclick="switchTab('nist', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            <span>Marco NIST CSF 2.0</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Grupo 4: Configuración -->
+      <div class="nav-section-group">
+        <div class="nav-section" onclick="toggleNavSection(this)">
+          <span>Configuración</span>
+          <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="nav-section-items">
+          <div class="nav-item" onclick="switchTab('config', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Ajustes de Acceso</span>
+          </div>
+          <div class="nav-item" onclick="switchTab('cotizaciones', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Cotizaciones</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Pie de página del Sidebar: Indicador de estado de red física y botón de logout -->
+    <div class="sidebar-footer">
+      <div class="status-indicator" style="margin-bottom: 12px;">
+        <span class="status-dot"></span>
+        <span id="network-status">Cargando red...</span>
+      </div>
+      <button class="logout-btn" onclick="logout()" title="Cerrar sesión del panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ==========================================
+       ÁREA DE CONTENIDO PRINCIPAL (MAIN)
+       ========================================== -->
+  <main class="main">
+    
+    <!-- Barra Superior de Herramientas (Topbar) -->
+    <header class="topbar">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <!-- BOTÓN COLLAPSE SIDEBAR: Permite alternar la barra lateral para maximizar el dashboard -->
+        <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Colapsar/Mostrar barra lateral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 20px; height: 20px;"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <h2 id="section-title">Panel de Seguridad de Red</h2>
+          <p id="last-scan">Último escaneo: cargando...</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <!-- MÓDULO DE DEMOSTRACIÓN: Conmuta entre escaneos de red simulados en caliente para entornos sin permisos locales -->
+        <div class="demo-toggle-container">
+          <span class="demo-label">Modo Demostración</span>
+          <label class="switch">
+            <input type="checkbox" id="demo-toggle" checked onchange="toggleDemoMode()">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <!-- MODO NOC: Cambia los colores de la UI a tonos militares (negro puro y rojo neón) y activa el Web Audio para sirenas -->
+        <div class="demo-toggle-container">
+          <span class="demo-label">Modo NOC</span>
+          <label class="switch">
+            <input type="checkbox" id="noc-toggle" onchange="toggleNocMode(this.checked)">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <!-- SIMULADOR DE ATAQUES: Inyecta un hacker rogue ('💀 Rogue-Hacker-Device') para validar contenciones del firewall local -->
+        <button class="scan-btn" onclick="triggerAttackSimulation()" id="simulate-btn" title="Simular intrusión de un hacker rogue en tiempo real (Didáctico Tesis)" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; cursor: pointer; transition: all 0.3s ease;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Simular Intrusión
+        </button>
+
+        <!-- REPORTE PDF: Llama al API backend que genera un reporte criptográfico formal (Ley Chilena N° 21.719) -->
+        <button class="pdf-btn" onclick="downloadPDF()" title="Descargar reporte de cumplimiento PDF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Reporte PDF
+        </button>
+
+        <!-- ESCANEAR RED: Gatilla el motor híbrido UDP/ARP de red local en server.js -->
+        <button class="scan-btn" onclick="runScan()" id="scan-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" id="scan-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Escanear Red
+        </button>
+      </div>
+    </header>
+
+    <!-- BARRA DE PROGRESO DE ESCANEO: Se muestra dinámicamente al escanear usando WebSockets -->
+    <div class="scan-progress-container" id="scan-progress-bar">
+      <div class="progress-info">
+        <span class="progress-message" id="progress-msg">Iniciando auditoría de red local...</span>
+        <span class="progress-percent" id="progress-val">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- BANNER DE ALERTA DE INTRUSO: Aparece si hay equipos 'No Autorizados' activos en la red -->
+    <div id="intruder-alert-banner" class="alert-banner" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; padding: 15px 20px; border-radius: var(--radius-md); margin-bottom: 24px; font-weight: 600; align-items: center; justify-content: space-between; animation: fadeIn 0.3s ease-in-out;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 20px; height: 20px; flex-shrink: 0;"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span id="intruder-alert-text">¡ALERTA DE SEGURIDAD! Se han detectado dispositivos no autorizados en la red local.</span>
+      </div>
+      <button class="btn-action" onclick="switchTab('dispositivos', document.querySelector('[onclick*=\'dispositivos\']'))" style="background: #ef4444; color: #fff; border: none; padding: 6px 12px; font-size: 11px; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.2s; white-space: nowrap;">
+        Ver Dispositivos
+      </button>
+    </div>
+
+    <!-- ==========================================
+         TARJETAS DE MÉTRICAS (GRID DE RESUMEN)
+         ========================================== -->
+    <section class="metrics" id="metrics-section">
+      <!-- Tarjeta 1: Conteo total de hosts detectados en red -->
+      <div class="metric-card blue">
+        <div class="metric-content">
+          <div class="metric-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Dispositivos Activos
+          </div>
+          <div class="metric-value" id="m-devices">0</div>
+          <div class="metric-sub" id="m-devices-sub">Monitoreados en la red</div>
+        </div>
+      </div>
+      
+      <!-- Tarjeta 2: Conteo de servicios/puertos críticos abiertos -->
+      <div class="metric-card red">
+        <div class="metric-content">
+          <div class="metric-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Puertos en Riesgo
+          </div>
+          <div class="metric-value" id="m-ports">0</div>
+          <div class="metric-sub" id="m-ports-sub">Vulnerabilidades abiertas</div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: Alertas de seguridad activas en base de datos -->
+      <div class="metric-card amber">
+        <div class="metric-content">
+          <div class="metric-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+            Alertas No Leídas
+          </div>
+          <div class="metric-value" id="m-alerts">0</div>
+          <div class="metric-sub" id="m-alerts-sub">Requieren atención inmediata</div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 4: Score General de Seguridad. Integra un anillo circular animado por SVG -->
+      <div class="metric-card green" id="score-card">
+        <div class="metric-content flex-row">
+          <div>
+            <div class="metric-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Score de Seguridad
+            </div>
+            <div class="metric-value" id="m-score">100</div>
+            <div class="metric-sub" id="m-score-sub">Excelente estado</div>
+          </div>
+          <!-- Anillo de progreso circular neón SVG -->
+          <div class="score-ring-container">
+            <div class="score-ring">
+              <svg viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+                <!-- Circunferencia calculada: 2 * PI * r = 150. Modificamos stroke-dashoffset dinámicamente -->
+                <circle cx="28" cy="28" r="24" fill="none" stroke="var(--green)" stroke-width="5" 
+                        stroke-dasharray="150" stroke-dashoffset="0" stroke-linecap="round" id="score-circle"/>
+              </svg>
+              <div class="score-num" id="score-num">100</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECCIÓN DEL MAPA TOPOLÓGICO DE RED (SVG)
+         ========================================== -->
+    <section class="card" id="topology-card" style="margin-bottom: 24px;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; margin-right: 8px; vertical-align: middle;"><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="5" r="2"/><path d="M12 9v1M9 12h1M12 15v-1M15 12h-1M6.5 6.5l3.5 3.5M17.5 6.5l-3.5 3.5M6.5 17.5l3.5-3.5M17.5 17.5l-3.5-3.5"/></svg>
+          Mapa de Topología de Red (Interactivo / Control Perimetral)
+        </div>
+        <span class="badge green" id="topology-badge">Monitoreo en Vivo</span>
+      </div>
+      <div class="card-body padded" style="padding: 15px; position: relative;">
+        <!-- Contenedor del Canvas SVG interactivo -->
+        <div class="topology-container" style="position: relative; width: 100%; height: 380px; background: rgba(0, 0, 0, 0.25); border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border);">
+          <!-- Dibujado asíncronamente por el Frontend -->
+          <svg id="topology-svg" width="100%" height="100%" viewBox="0 0 800 380" style="width: 100%; height: 100%;">
+            <!-- Poblado con javascript mediante 'renderTopologyMap' -->
+          </svg>
+          <!-- Leyenda rápida del significado de colores del mapa de red -->
+          <div class="topology-legend" style="position: absolute; bottom: 12px; left: 12px; display: flex; gap: 15px; font-size: 11px; background: rgba(0,0,0,0.7); padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); backdrop-filter: blur(8px); pointer-events: none; z-index: 5;">
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); display: inline-block;"></span><span>Autorizado / Activo</span></div>
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px var(--amber); display: inline-block;"></span><span>No Autorizado</span></div>
+            <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); display: inline-block;"></span><span>Bloqueado (Aislado)</span></div>
+          </div>
+        </div>
+        
+        <!-- CUADRO DE DETALLES DEL NODO (POPOVER FLOTANTE)
+             Se despliega de manera flotante en el costado derecho al hacer click en cualquier host del mapa -->
+        <div id="node-popover" class="glass" style="display: none; position: absolute; top: 30px; right: 30px; width: 260px; padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.6); z-index: 10; animation: fadeIn 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h4 id="popover-name" style="margin: 0; color: #fff; font-size: 14px; font-weight: 700; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Dispositivo</h4>
+            <button onclick="closePopover()" style="background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px;">&times;</button>
+          </div>
+          <p id="popover-ip" style="font-family: var(--font-code); font-size: 11px; color: var(--muted); margin: 0 0 12px 0;">192.168.1.1</p>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+            <div style="font-size: 11px; display: flex; justify-content: space-between;"><span style="color: var(--muted);">Dirección MAC:</span><span id="popover-mac" style="font-family: var(--font-code);">--</span></div>
+            <div style="font-size: 11px; display: flex; justify-content: space-between;"><span style="color: var(--muted);">Fabricante:</span><span id="popover-vendor">--</span></div>
+            <div style="font-size: 11px; display: flex; justify-content: space-between;"><span style="color: var(--muted);">Nivel Riesgo:</span><span id="popover-risk" class="badge">Bajo</span></div>
+            <div style="font-size: 11px; display: flex; justify-content: space-between;"><span style="color: var(--muted);">Estado Red:</span><span id="popover-status">--</span></div>
+            <div id="popover-ports-container" style="font-size: 11px; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;"><span style="color: var(--muted);">Puertos Abiertos:</span><div id="popover-ports" style="font-weight: 600; color: #fff; margin-top: 2px;">Ninguno</div></div>
+          </div>
+          <!-- Acciones dinámicas de mitigación (Bloqueo en firewall y descarga de scripts de Hardening) -->
+          <div style="display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;" id="popover-actions">
+            <!-- Inyectado dinámicamente por la función 'updatePopoverContent' en app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         GRÁFICA DE TENDENCIA DE SEGURIDAD (HISTORIAL)
+         ========================================== -->
+    <section class="card" id="trend-container" style="margin-bottom: 24px;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m18.7 8-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+          Historial de Score de Seguridad (Tendencia Temporal)
+        </div>
+        <span class="badge blue" id="trend-badge">Cargando tendencia...</span>
+      </div>
+      <div class="card-body padded" style="padding: 20px 24px;">
+        <div class="chart-container" style="position: relative; height: 180px; width: 100%;">
+          <!-- SVG Line Chart de tendencia dibujado mediante comandos de trazado matemáticos en JavaScript -->
+          <svg id="trend-svg" viewBox="0 0 800 180" width="100%" height="100%" preserveAspectRatio="none" style="overflow: visible;">
+            <!-- Renderizado dinámico desde app.js -->
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         GRID DE DETALLES Y TABLAS (SPA CONTENEDORES)
+         ========================================== -->
+    <div class="content-grid">
+      
+      <!-- COLUMNA IZQUIERDA: Inventario completo de dispositivos -->
+      <section class="card" id="devices-container">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Inventario de Dispositivos (NIST: IDENTIFICAR)
+          </div>
+          <span class="badge blue" id="devices-badge">0 encontrados</span>
+        </div>
+        
+        <!-- Filtros interactivos del cliente (Búsqueda en vivo y Dropdown de estados) -->
+        <div class="table-controls-bar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="device-search" placeholder="Buscar por IP, MAC o nombre..." oninput="onDeviceSearchInput()">
+          </div>
+          <div class="filter-box">
+            <select id="device-filter" onchange="onDeviceFilterChange()">
+              <option value="todos">Todos los dispositivos</option>
+              <option value="activo">Dispositivos Activos</option>
+              <option value="inactivo">Dispositivos Inactivos</option>
+              <option value="bloqueado">Dispositivos Bloqueados</option>
+              <option value="sospechoso">Sospechosos (No Autorizados)</option>
+              <option value="vulnerable">Vulnerables (Con Puertos)</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Tabla física de los dispositivos conectados en red -->
+        <div class="card-body scroll-x">
+          <table>
+            <thead>
+              <tr>
+                <th>Dispositivo</th>
+                <th>Dirección IP / MAC</th>
+                <th>Estado</th>
+                <th>Nivel Riesgo</th>
+                <th>Autorización</th>
+                <th style="text-align: right">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="devices-tbody">
+              <!-- Cargado dinámicamente desde javascript -->
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--muted); padding: 30px;">
+                  Cargando inventario de red...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COLUMNA DERECHA: Paneles rápidos de Puertos y Alertas -->
+      <div class="right-column" id="side-panels">
+        
+        <!-- Pestaña rápida de Puertos Abiertos detectados en el último escaneo -->
+        <section class="card" id="ports-container">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              Puertos Expuestos (NIST: PROTEGER)
+            </div>
+          </div>
+          <div class="card-body" id="ports-list">
+            <!-- Inyectado por Javascript -->
+            <div class="empty-state">No se han detectado puertos vulnerables.</div>
+          </div>
+        </section>
+
+        <!-- Historial simplificado de Alertas del Sistema -->
+        <section class="card" id="alerts-container">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              Alertas del Sistema (NIST: DETECTAR)
+            </div>
+            <button class="text-btn" onclick="readAllAlerts()">Marcar leídas</button>
+          </div>
+          <div class="card-body" id="alerts-list">
+            <!-- Inyectado por Javascript -->
+            <div class="empty-state">No hay alertas activas en el sistema.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         SECCIÓN DE ACCIONES Y RECOMENDACIONES (MITIGACIÓN)
+         ========================================== -->
+    <section class="card" id="recommendations-container" style="margin-top: 16px;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Recomendaciones y Plan de Acción (NIST: RESPONDER / RECUPERAR)
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="rec-grid" id="recommendations-list">
+          <!-- Cargado dinámicamente desde javascript en base al nivel de riesgo general detectado -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECCIÓN METODOLÓGICA (ALINEAMIENTO NIST CSF 2.0 Y LEYES)
+         ========================================== -->
+    <section class="card" id="nist-container" style="display: none; margin-top: 16px; animation: fadeIn 0.3s ease;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Alineamiento Técnico con el Marco NIST CSF 2.0 y Legislación Chilena
+        </div>
+        <span class="badge blue">Cumplimiento Estándar</span>
+      </div>
+      <div class="card-body padded">
+        <p style="margin-bottom: 20px; line-height: 1.6; color: var(--text); font-size: 14px;">
+          PymeShield ha sido estructurado siguiendo las mejores prácticas del estándar internacional <strong>NIST Cybersecurity Framework 2.0</strong> y adaptado a las directrices de la legislación de ciberseguridad nacional (<strong>Ley N° 21.663</strong> Marco de Ciberseguridad y <strong>Ley N° 21.719</strong> de protección de infraestructura crítica). El sistema organiza sus funciones técnicas en cinco pilares fundamentales:
+        </p>
+        <div class="nist-grid">
+          <!-- CARD 1: IDENTIFICAR (Catastro de Activos) -->
+          <div class="nist-card ident">
+            <div class="nist-card-header">
+              <div class="nist-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </div>
+              <h3>1. IDENTIFICAR (Identify)</h3>
+            </div>
+            <p class="nist-card-desc">
+              Descubrimiento automatizado y mapeo físico de la red local. PymeShield realiza barridos asíncronos y consulta la tabla ARP para construir un inventario preciso de hosts activos y registrar fabricantes (MacVendors).
+            </p>
+            <div class="nist-card-mapping">
+              <strong>Mapeo en PymeShield:</strong>
+              <span>Inventario de Dispositivos e Historial de IPs/MACs detectadas.</span>
+            </div>
+          </div>
+
+          <!-- CARD 2: PROTEGER (Mitigación proactiva y control de puertos) -->
+          <div class="nist-card prot">
+            <div class="nist-card-header">
+              <div class="nist-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </div>
+              <h3>2. PROTEGER (Protect)</h3>
+            </div>
+            <p class="nist-card-desc">
+              Auditoría asíncrona de puertos TCP críticos expuestos (22 SSH, 80 HTTP, 443 HTTPS, 445 SMB, 3389 RDP). Limita la exposición de servicios vulnerables al recomendar directrices específicas de hardening.
+            </p>
+            <div class="nist-card-mapping">
+              <strong>Mapeo en PymeShield:</strong>
+              <span>Módulo de Puertos Abiertos y Políticas sugeridas de cierre de accesos.</span>
+            </div>
+          </div>
+
+          <!-- CARD 3: DETECTAR (Alertas tempranas y telemetría de red) -->
+          <div class="nist-card det">
+            <div class="nist-card-header">
+              <div class="nist-icon amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h3>3. DETECTAR (Detect)</h3>
+            </div>
+            <p class="nist-card-desc">
+              Monitoreo continuo en segundo plano y detección en tiempo real. Alertamiento mediante WebSockets ante presencia de dispositivos no autorizados (sospechosos) o escaneos automáticos cada 3 minutos.
+            </p>
+            <div class="nist-card-mapping">
+              <strong>Mapeo en PymeShield:</strong>
+              <span>Módulo de Alertas del Sistema y alertas instantáneas en la UI.</span>
+            </div>
+          </div>
+
+          <!-- CARD 4: RESPONDER (Aislamiento perimetral) -->
+          <div class="nist-card resp">
+            <div class="nist-card-header">
+              <div class="nist-icon red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h3>4. RESPONDER (Respond)</h3>
+            </div>
+            <p class="nist-card-desc">
+              Contención activa de amenazas detectadas en la red. Permite el aislamiento inmediato de hosts mediante la inyección y modificación automatizada de reglas en el Firewall de Windows (netsh).
+            </p>
+            <div class="nist-card-mapping">
+              <strong>Mapeo en PymeShield:</strong>
+              <span>Módulo de Contención y Botón "Bloquear" que ejecuta comandos netsh.</span>
+            </div>
+          </div>
+
+          <!-- CARD 5: RECUPERAR (Reportabilidad legal) -->
+          <div class="nist-card rec">
+            <div class="nist-card-header">
+              <div class="nist-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </div>
+              <h3>5. RECUPERAR (Recover)</h3>
+            </div>
+            <p class="nist-card-desc">
+              Generación de planes de acción priorizados y guías detalladas paso a paso para la remediación autónoma de vulnerabilidades. Emisión de reportes PDF de cumplimiento oficial firmables.
+            </p>
+            <div class="nist-card-mapping">
+              <strong>Mapeo en PymeShield:</strong>
+              <span>Recomendaciones del Plan de Acción y Exportación de Reporte PDF.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECCIÓN DE CONFIGURACIÓN Y AJUSTES DE ACCESO
+         ========================================== -->
+    <section class="card" id="config-container" style="display: none; margin-top: 16px; max-width: 500px; margin-left: 0; animation: fadeIn 0.3s ease;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          Configuración de Acceso
+        </div>
+        <span class="badge blue">Seguridad Local</span>
+      </div>
+      <div class="card-body padded">
+        <p style="margin-bottom: 20px; line-height: 1.5; font-size: 13px; color: var(--muted);">
+          Modifica las credenciales administrativas de acceso para el panel PymeShield. Al guardar, el hash SHA-256 se actualizará de forma segura en el archivo local de credenciales del servidor.
+        </p>
+        <!-- Formulario para cambiar la clave de acceso del administrador -->
+        <form id="change-password-form" onsubmit="handleChangePassword(event)">
+          <div class="input-group">
+            <label for="current-password">Contraseña Actual</label>
+            <input type="password" id="current-password" placeholder="Ingresa tu clave actual" required autocomplete="current-password">
+          </div>
+          <div class="input-group">
+            <label for="new-password">Nueva Contraseña</label>
+            <input type="password" id="new-password" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+          </div>
+          <div class="input-group">
+            <label for="confirm-password">Confirmar Nueva Contraseña</label>
+            <input type="password" id="confirm-password" placeholder="Repite la nueva clave" required autocomplete="new-password">
+          </div>
+          <div id="change-pass-success" class="badge green" style="display: none; width: 100%; padding: 10px; margin-bottom: 15px; justify-content: center; border-radius: var(--radius-sm);">
+            Contraseña actualizada correctamente.
+          </div>
+          <div id="change-pass-error" class="badge red" style="display: none; width: 100%; padding: 10px; margin-bottom: 15px; justify-content: center; border-radius: var(--radius-sm);">
+            Error al actualizar la contraseña.
+          </div>
+          <button type="submit" class="scan-btn" style="width: 100%; justify-content: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Guardar Cambios
+          </button>
+        </form>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 24px 0;">
+
+        <!-- POLÍTICAS AVANZADAS: Zero-Trust NAC y Webhooks del SOAR -->
+        <div class="policies-section" style="margin-bottom: 24px;">
+          <h3 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; color: var(--blue);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Políticas de Seguridad Avanzada (NAC / SOAR)
+          </h3>
+          
+          <form id="advanced-settings-form" onsubmit="handleSaveAdvancedSettings(event)">
+            <!-- Switch para activar o desactivar en caliente el NAC Zero-Trust local -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 16px;">
+              <div>
+                <strong style="font-size: 13px; color: #fff; display: block; margin-bottom: 4px;">Control de Admisión Zero-Trust (NAC)</strong>
+                <span style="font-size: 11px; color: var(--muted); line-height: 1.4; display: block; max-width: 320px;">
+                  Bloquea automáticamente en el Firewall a cualquier dispositivo nuevo o sospechoso que se detecte en la red.
+                </span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="zt-toggle">
+                <span class="slider round"></span>
+              </label>
+            </div>
+
+            <!-- Entrada de la URL del Webhook del SIEM/SOAR -->
+            <div class="input-group" style="margin-bottom: 16px;">
+              <label for="webhook-url">URL de Webhook (Integración Cortex XSOAR / SIEM)</label>
+              <input type="url" id="webhook-url" placeholder="https://api-soar.colegio.cl/alerts/webhook" autocomplete="off" style="font-family: var(--font-code); font-size: 12px;">
+              <span style="font-size: 11px; color: var(--muted); margin-top: 4px; display: block; line-height: 1.3;">
+                PymeShield enviará un JSON POST en tiempo real ante eventos críticos. Puedes usar un webhook de Slack o Teams.
+              </span>
+            </div>
+
+            <div id="adv-settings-success" class="badge green" style="display: none; width: 100%; padding: 10px; margin-bottom: 15px; justify-content: center; border-radius: var(--radius-sm);">
+              Políticas de seguridad actualizadas.
+            </div>
+            <div id="adv-settings-error" class="badge red" style="display: none; width: 100%; padding: 10px; margin-bottom: 15px; justify-content: center; border-radius: var(--radius-sm);">
+              Error al guardar las políticas.
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+              <button type="button" class="btn-action" onclick="testWebhook()" style="flex: 1; justify-content: center; font-size: 11px; padding: 10px;">
+                Probar Conexión
+              </button>
+              <button type="submit" class="scan-btn" style="flex: 1.5; justify-content: center; padding: 10px; font-size: 11px; gap: 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                Guardar Políticas
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 24px 0;">
+
+        <!-- LICENCIAMIENTO: Simula el modelo comercial limitando funciones si está en modo Demo -->
+        <div class="licensing-section" style="margin-bottom: 24px;">
+          <h3 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; color: var(--green);"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Licenciamiento del Software
+          </h3>
+          <p style="font-size: 12px; color: var(--muted); line-height: 1.4; margin-bottom: 12px;">
+            Estado actual del sistema: 
+            <span id="license-status-badge" class="badge amber" style="font-weight: 700; font-size: 11px;">Licencia Demo / Evaluación</span>
+          </p>
+          <div id="license-notice" style="font-size: 11px; color: var(--amber); background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px; line-height: 1.4;">
+            <strong>Modo Demo Activo:</strong> El monitoreo del mapa está limitado a 5 dispositivos activos y la descarga de scripts de Hardening está deshabilitada. Ingrese una clave de licencia activa.
+          </div>
+          
+          <form id="license-form" onsubmit="handleActivateLicense(event)" style="display: flex; gap: 8px;">
+            <input type="text" id="license-key-input" placeholder="Ej: PYMESHIELD-777-PREMIUM" required style="flex: 1; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm); color: #fff; font-family: var(--font-code); font-size: 12px;">
+            <button type="submit" class="scan-btn" style="padding: 10px 16px; font-size: 11px; white-space: nowrap; height: auto;">
+              Activar Licencia
+            </button>
+          </form>
+          <div id="license-success" class="badge green" style="display: none; width: 100%; padding: 10px; margin-top: 10px; justify-content: center; border-radius: var(--radius-sm);">
+            ¡Licencia Enterprise activada con éxito! Características desbloqueadas.
+          </div>
+          <div id="license-error" class="badge red" style="display: none; width: 100%; padding: 10px; margin-top: 10px; justify-content: center; border-radius: var(--radius-sm);">
+            Clave de licencia inválida. Intente de nuevo o contacte a soporte.
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 24px 0;">
+
+        <!-- LISTA BLANCA DE DISPOSITIVOS AUTORIZADOS
+             Muestra un resumen de los dispositivos que se han autorizado -->
+        <div class="whitelist-section" style="margin-bottom: 24px;">
+          <h3 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; color: var(--blue);"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Dispositivos Autorizados (Lista Blanca)
+          </h3>
+          <p style="font-size: 12px; color: var(--muted); line-height: 1.4; margin-bottom: 12px;">
+            Dispositivos marcados como seguros. Cualquier otro dispositivo no incluido en esta lista será reportado como sospechoso en la red.
+          </p>
+          <div style="max-height: 180px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255,255,255,0.01);">
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.03); text-align: left;">
+                  <th style="padding: 8px; color: #fff;">Nombre / Alias</th>
+                  <th style="padding: 8px; color: #fff;">IP</th>
+                  <th style="padding: 8px; color: #fff;">MAC</th>
+                  <th style="padding: 8px; color: #fff; text-align: right;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="whitelist-tbody">
+                <!-- Se puebla dinámicamente con 'renderWhitelist' en app.js -->
+                <tr><td colspan="4" style="text-align: center; padding: 12px; color: var(--muted);">No hay dispositivos autorizados aún.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 24px 0;">
+
+        <!-- MFA MANAGEMENT: Permite re-vincular el dispositivo eliminando la clave actual de credenciales.json -->
+        <div class="mfa-management-section">
+          <h3 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; color: var(--blue);"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Doble Factor de Autenticación (MFA)
+          </h3>
+          <p style="font-size: 12px; color: var(--muted); line-height: 1.4; margin-bottom: 16px;">
+            Si deseas vincular un nuevo teléfono de confianza o desactivar temporalmente el bloqueo de seguridad actual, puedes restablecer la clave del autenticador aquí. En tu próximo inicio de sesión, se generará un nuevo código QR.
+          </p>
+          <div id="reset-mfa-success" class="badge green" style="display: none; width: 100%; padding: 10px; margin-bottom: 15px; justify-content: center; border-radius: var(--radius-sm);">
+            MFA restablecido. Vincula un dispositivo nuevo al volver a iniciar sesión.
+          </div>
+          <div id="reset-mfa-error" class="badge red" style="display: none; width: 100%; padding: 10px; margin-bottom: 15px; justify-content: center; border-radius: var(--radius-sm);">
+            Error al restablecer MFA.
+          </div>
+          <button class="logout-btn" onclick="resetMfa()" style="justify-content: center; gap: 8px; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Restablecer Doble Factor (MFA)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECCIÓN DE COTIZACIONES (DESDE LA LANDING PAGE)
+         ========================================== -->
+    <section class="card" id="cotizaciones-container" style="display: none; margin-top: 16px; animation: fadeIn 0.3s ease;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; color: var(--blue);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Solicitudes de Cotización Recibidas (Landing Page)
+        </div>
+        <span class="badge blue">Prospectos Activos</span>
+      </div>
+      <div class="card-body scroll-x" style="padding: 20px;">
+        <p style="margin-bottom: 16px; line-height: 1.5; font-size: 13px; color: var(--muted);">
+          Estas solicitudes se generan cuando un cliente potencial completa el formulario en la Landing Page. Se almacenan de forma local en la base de datos SQLite y pueden auditarse aquí.
+        </p>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.03); text-align: left;">
+              <th style="padding: 10px; color: #fff; font-size: 12px; width: 140px;">Fecha</th>
+              <th style="padding: 10px; color: #fff; font-size: 12px; width: 180px;">Cliente / Empresa</th>
+              <th style="padding: 10px; color: #fff; font-size: 12px; width: 180px;">Contacto</th>
+              <th style="padding: 10px; color: #fff; font-size: 12px; width: 140px;">Plan / Equipos</th>
+              <th style="padding: 10px; color: #fff; font-size: 12px;">Mensaje / Requerimiento</th>
+              <th style="padding: 10px; color: #fff; font-size: 12px; text-align: right; width: 100px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="quotes-tbody">
+            <!-- Inyectado dinámicamente desde javascript mediante 'loadQuotes' -->
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 30px; color: var(--muted); font-size: 13px;">
+                No hay solicitudes de cotización registradas en la base de datos.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECCIÓN DE HISTORIAL DE ACTIVIDAD (BITÁCORA SQLITE)
+         ========================================== -->
+    <section class="card" id="audit-container" style="display: none; margin-top: 16px; animation: fadeIn 0.3s ease;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9M3 20v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 12V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 8h18"/></svg>
+          Historial de Actividad y Auditoría (Trazabilidad)
+        </div>
+        <span class="badge blue">Bitácora Activa</span>
+      </div>
+      <div class="card-body scroll-x">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 180px;">Fecha y Hora</th>
+              <th style="width: 140px;">Acción Realizada</th>
+              <th>Descripción del Evento (Español Simple)</th>
+              <th style="text-align: right; width: 130px;">Dirección IP</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody">
+            <!-- Inyectado dinámicamente desde javascript mediante 'loadAuditLogs' -->
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--muted); padding: 30px;">
+                Cargando historial de auditoría...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         MODAL DE DETALLE DE AMENAZAS Y CVE (EDUCATIVO)
+         ========================================== -->
+    <div id="cve-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-box glass">
+        <div class="modal-header">
+          <div class="modal-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h2 id="cve-modal-title">¿Qué significa este peligro?</h2>
+          <button class="close-btn" onclick="closeCveModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="cve-field">
+            <strong>Puerto y Servicio Detectado:</strong>
+            <span id="cve-port-info" class="badge red">:22 (SSH)</span>
+          </div>
+          <div class="cve-field" style="margin-top: 15px;">
+            <strong>¿Cómo afecta a tu negocio? (Explicación para no técnicos):</strong>
+            <!-- Párrafo explicativo dinámico adaptado a Claudia o Don Oscar -->
+            <p id="cve-simple-desc" style="line-height: 1.5; color: var(--text); font-size: 13.5px; margin-top: 6px;"></p>
+          </div>
+          <div class="cve-field" style="margin-top: 15px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <strong style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); display: block;">Referencia Técnica (Para tu informático):</strong>
+            <div style="font-family: var(--font-code); font-size: 12px; color: var(--text); margin-top: 6px;" id="cve-code-ref">CVE-2023-48795</div>
+          </div>
+        </div>
+        <div class="modal-footer" style="margin-top: 20px; display: flex; justify-content: flex-end;">
+          <button class="pdf-btn" onclick="closeCveModal()">Entendido, cerrar</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- BOTÓN FLOTANTE Y WIDGET DE CHAT: PymeShield Assistant -->
+  <div id="assistant-widget" class="assistant-widget" style="display: none;">
+    <div id="assistant-chat-window" class="chat-window glass" style="display: none;">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <h3>PymeShield Assistant</h3>
+            <span class="status-online"><span class="dot"></span>Activo y Protegiendo</span>
+          </div>
+        </div>
+        <button class="close-chat-btn" onclick="toggleAssistantChat()">&times;</button>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <!-- Los mensajes se inyectarán de forma dinámica mediante JavaScript -->
+      </div>
+      <form id="chat-input-form" onsubmit="sendAssistantMessage(event)">
+        <input type="text" id="chat-input" placeholder="Pregúntame sobre la red, alertas o la Ley N° 21.719..." required autocomplete="off">
+        <button type="submit" class="chat-send-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
+    </div>
+    
+    <button id="assistant-toggle-btn" class="assistant-toggle-btn" onclick="toggleAssistantChat()" title="PymeShield Assistant">
+      <span class="pulse-ring"></span>
+      <span class="chat-icon">💬</span>
+    </button>
+  </div>
+
+  <!-- CONTROLADOR CLIENTE: Archivo javascript que controla las peticiones HTTP/WS y renderiza la UI -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+# Dependencias
+node_modules/
+jspm_packages/
+web_modules/
+
+# Archivos de base de datos locales (SQLite / Prisma)
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Credenciales y secretos locales (¡Muy importante no subirlos!)
+credenciales.json
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos temporales de Editores y Office
+~$*.docx
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Logs y reportes generados localmente
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Directorios de compilación/Docker locales si aplica
+.docker/

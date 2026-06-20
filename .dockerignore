@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+prisma/dev.db
+prisma/dev.db-journal
+.git
+.gitignore
+*.bat
+extract_docx.py
+fill_docx.py
+docx_extracted
+test_report.pdf

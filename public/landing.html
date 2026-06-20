@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PymeShield | Ciberseguridad Activa y Cumplimiento Normativo para PYMEs</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="landing.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar-container">
+        <div class="navbar glass">
+            <div class="logo-area">
+                <img src="logo.png" alt="PymeShield Logo" class="nav-logo">
+                <span class="logo-text">Pyme<span class="highlight">Shield</span></span>
+            </div>
+            <nav class="nav-links">
+                <a href="#inicio">Inicio</a>
+                <a href="#componentes">Componentes</a>
+                <a href="#cumplimiento">Leyes y Cumplimiento</a>
+                <a href="#precios">Planes</a>
+                <a href="#contacto">Contacto</a>
+            </nav>
+            <div class="cta-area">
+                <a href="http://localhost:3000" class="btn btn-neon-blue nav-cta">Acceso Consola</a>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="mobile-menu glass">
+        <a href="#inicio" onclick="toggleMobileMenu()">Inicio</a>
+        <a href="#componentes" onclick="toggleMobileMenu()">Componentes</a>
+        <a href="#cumplimiento" onclick="toggleMobileMenu()">Leyes y Cumplimiento</a>
+        <a href="#precios" onclick="toggleMobileMenu()">Planes</a>
+        <a href="#contacto" onclick="toggleMobileMenu()">Contacto</a>
+        <a href="http://localhost:3000" class="btn btn-neon-blue mobile-cta">Acceso Consola</a>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <main>
+        
+        <!-- HERO SECTION -->
+        <section id="inicio" class="hero-section">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="badge neon-text-green">🛡️ PROTECCIÓN ACTIVA 24/7</div>
+                    <h1>Ciberseguridad Inteligente y Cumplimiento para PYMEs</h1>
+                    <p class="hero-description">
+                        Protege tu negocio contra ransomware y ataques avanzados mientras cumples de forma automatizada con las nuevas leyes **N° 21.719** y **N° 21.663** en Chile. Sin complicaciones técnicas.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="http://localhost:3000" class="btn btn-neon-green btn-large glow-green">Ver Demo Interactiva</a>
+                        <a href="#componentes" class="btn btn-outline btn-large">Saber Más</a>
+                    </div>
+                    <div class="hero-features-list">
+                        <div class="feat-item"><span class="icon">⚡</span> Mitigación en 3 Minutos</div>
+                        <div class="feat-item"><span class="icon">⚖️</span> Cumplimiento Legal Integrado</div>
+                        <div class="feat-item"><span class="icon">🧩</span> Zero-Trust Autogestionado</div>
+                    </div>
+                </div>
+                
+                <div class="hero-graphic">
+                    <div class="cyber-appliance-wrapper">
+                        <!-- PymeShield Appliance Box en 3D/CSS -->
+                        <div class="appliance-box">
+                            <div class="box-front">
+                                <div class="brand-badge">PymeShield v2.0</div>
+                                <div class="led-indicators">
+                                    <div class="ledled led-power blinking-fast" title="Power / Sistema"><span></span>POWER</div>
+                                    <div class="ledled led-internet blinking-slow" title="WAN Link"><span></span>WAN LINK</div>
+                                    <div class="ledled led-vpn pulse" title="VPN Segura"><span></span>SECURE VPN</div>
+                                    <div class="ledled led-containment" id="led-containment" title="Contención Activa"><span></span>MITIGATION</div>
+                                </div>
+                                <div class="ports-grid">
+                                    <div class="ethernet-port port-wan">WAN</div>
+                                    <div class="ethernet-port port-lan">LAN 1</div>
+                                    <div class="ethernet-port port-lan">LAN 2</div>
+                                    <div class="ethernet-port port-lan">LAN 3</div>
+                                </div>
+                            </div>
+                            <div class="box-top"></div>
+                            <div class="box-side"></div>
+                        </div>
+                        <div class="glow-shadow"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- WAVE SEPARATOR -->
+            <div class="section-divider">
+                <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                    <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C26.9,8.75,57.05,18.3,82.47,25.86A307.71,307.71,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+                </svg>
+            </div>
+        </section>
+
+        <!-- COMPONENT ARCHITECTURE -->
+        <section id="componentes" class="components-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">El Ecosistema <span class="neon-text-blue">PymeShield</span></h2>
+                    <p class="section-subtitle">Tres pilares de hardware y software trabajando coordinadamente para blindar tu negocio.</p>
+                </div>
+                
+                <div class="components-grid">
+                    <!-- Component 1: Appliance Box -->
+                    <div class="component-card glass hover-glow-blue">
+                        <div class="card-icon blue-bg">📟</div>
+                        <h3>PymeShield Box</h3>
+                        <p class="card-tag">Dispositivo Físico o Virtual (Gateway)</p>
+                        <p class="card-desc">
+                            Se instala como puerta de enlace en tu red. Inspecciona el tráfico local, analiza puertos vulnerables y ejecuta la microsegmentación para aislar amenazas en segundos en caso de incidentes.
+                        </p>
+                        <ul class="card-bullets">
+                            <li>Cortafuegos de inspección profunda</li>
+                            <li>Aislamiento de red automático</li>
+                            <li>Bajo consumo y fácil instalación</li>
+                        </ul>
+                    </div>
+
+                    <!-- Component 2: Cloud Console -->
+                    <div class="component-card glass hover-glow-green">
+                        <div class="card-icon green-bg">💻</div>
+                        <h3>Consola de Gestión Cloud</h3>
+                        <p class="card-tag">Dashboard Centralizado</p>
+                        <p class="card-desc">
+                            Una interfaz intuitiva basada en la nube. Permite monitorear el Score de Seguridad de la empresa, gestionar incidentes en tiempo real, visualizar alertas críticas y exportar informes en un clic.
+                        </p>
+                        <ul class="card-bullets">
+                            <li>Indicador de Score de 0 a 100</li>
+                            <li>Generación de PDF de auditoría</li>
+                            <li>Bitácora de eventos con auditoría inmutable</li>
+                        </ul>
+                    </div>
+
+                    <!-- Component 3: Endpoint Agent -->
+                    <div class="component-card glass hover-glow-red">
+                        <div class="card-icon red-bg">🛡️</div>
+                        <h3>Agente Endpoint</h3>
+                        <p class="card-tag">Software de Monitoreo Local</p>
+                        <p class="card-desc">
+                            Servicio liviano instalado en servidores y terminales Windows/Linux. Detecta comportamientos sospechosos, monitorea puertos y ejecuta reglas de contención locales de forma coordinada con el Box.
+                        </p>
+                        <ul class="card-bullets">
+                            <li>Consumo menor al 1% de CPU</li>
+                            <li>Monitoreo de puertos críticos</li>
+                            <li>Bloqueo local mediante firewall nativo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEGAL COMPLIANCE -->
+        <section id="cumplimiento" class="compliance-section">
+            <div class="container">
+                <div class="compliance-wrapper glass">
+                    <div class="compliance-info">
+                        <div class="badge neon-text-blue">⚖️ CUMPLIMIENTO REGULATORIO CHILE</div>
+                        <h2>Evita Sanciones Graves y Protege tu Reputación</h2>
+                        <p class="compliance-main-desc">
+                            Las PYMEs en Chile ahora enfrentan un panorama regulatorio estricto con obligaciones de reporte y protección de datos. PymeShield está diseñado desde su origen para ayudarte a cumplir de forma simple:
+                        </p>
+                        
+                        <div class="laws-accordion">
+                            <div class="law-item">
+                                <div class="law-header" onclick="toggleLaw(this)">
+                                    <h4>Ley N° 21.719: Protección de Datos Personales</h4>
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <div class="law-content">
+                                    <p>Esta normativa obliga a resguardar la información de clientes y trabajadores. El incumplimiento o filtración de datos puede acarrear multas severas de hasta **20.000 UTM** (más de 1.300 millones de pesos) y auditorías obligatorias.</p>
+                                    <div class="compliance-pill"><strong>Cómo ayuda PymeShield:</strong> Cifrado de credenciales con SHA-256, autenticación MFA integrada y bitácora de auditoría inmutable para demostrar debida diligencia.</div>
+                                </div>
+                            </div>
+                            
+                            <div class="law-item">
+                                <div class="law-header" onclick="toggleLaw(this)">
+                                    <h4>Ley N° 21.663: Ley Marco de Ciberseguridad</h4>
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <div class="law-content">
+                                    <p>Establece que las empresas que presten servicios esenciales o manejen datos críticos deben reportar cualquier incidente de seguridad al CSIRT nacional en un plazo máximo de **3 horas**.</p>
+                                    <div class="compliance-pill"><strong>Cómo ayuda PymeShield:</strong> Alertas SOAR automatizadas mediante Webhooks inmediatos a sistemas SOC/SIEM para no perder un solo minuto ante un ataque.</div>
+                                </div>
+                            </div>
+
+                            <div class="law-item">
+                                <div class="law-header" onclick="toggleLaw(this)">
+                                    <h4>Marco de Trabajo NIST CSF 2.0</h4>
+                                    <span class="arrow">▼</span>
+                                </div>
+                                <div class="law-content">
+                                    <p>Alineamos tus políticas de TI con el estándar de ciberseguridad más respetado a nivel mundial, cubriendo las 5 funciones clave: **Identificar, Proteger, Detectar, Responder y Recuperar**.</p>
+                                    <div class="compliance-pill"><strong>Cómo ayuda PymeShield:</strong> Dashboard táctico que mapea visualmente cada función del estándar NIST para auditorías ágiles.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="compliance-visual">
+                        <div class="compliance-card-3d">
+                            <div class="shield-icon">🛡️</div>
+                            <h3>Cumplimiento PymeShield</h3>
+                            <div class="score-ring">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle class="ring-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="ring-fg" cx="60" cy="60" r="50"></circle>
+                                </svg>
+                                <span class="score-number">100%</span>
+                            </div>
+                            <p class="status-ok">Alineado a CSIRT & Ley 21.719</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRICING SECTION -->
+        <section id="precios" class="pricing-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Inversión Inteligente para tu Negocio</h2>
+                    <p class="section-subtitle">Planes adaptados al tamaño de tu empresa, facturados en UF con estimación dinámica en pesos chilenos.</p>
+                </div>
+
+                <!-- UF CONFIGURATOR -->
+                <div class="uf-selector-box glass">
+                    <label for="uf-value">Valor de la UF hoy (CLP):</label>
+                    <div class="uf-input-wrapper">
+                        <span class="currency-prefix">$</span>
+                        <input type="number" id="uf-value" value="38000" oninput="calculatePrices()">
+                    </div>
+                    <span class="helper-text">Modifica el valor para actualizar los precios en tiempo real.</span>
+                </div>
+                
+                <div class="pricing-grid">
+                    <!-- PLAN 1: STARTER -->
+                    <div class="pricing-card glass">
+                        <div class="card-header">
+                            <h3>PYME Starter</h3>
+                            <p class="plan-desc">Ideal para microempresas y locales comerciales únicos.</p>
+                        </div>
+                        <div class="price-box">
+                            <span class="uf-price" data-uf="1.5">1.5 UF</span>
+                            <span class="billing">/ mes + IVA</span>
+                            <div class="clp-price" id="clp-starter">$57.000 CLP</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><span class="check">✓</span> 1 Appliance Virtual (PymeShield Box)</li>
+                            <li><span class="check">✓</span> Hasta 10 Agentes Endpoints</li>
+                            <li><span class="check">✓</span> Consola de Monitoreo Cloud</li>
+                            <li><span class="check">✓</span> Score de Seguridad en tiempo real</li>
+                            <li class="disabled"><span class="cross">✗</span> Conexión Multi-sucursal</li>
+                            <li class="disabled"><span class="cross">✗</span> Alertas SOAR / Webhooks personalizados</li>
+                        </ul>
+                        <div class="card-footer">
+                            <button class="btn btn-block btn-outline" onclick="selectPlan('PYME Starter', 1.5)">Seleccionar Plan</button>
+                        </div>
+                    </div>
+
+                    <!-- PLAN 2: MULTI-SUCURSAL -->
+                    <div class="pricing-card glass popular">
+                        <div class="popular-badge">RECOMENDADO</div>
+                        <div class="card-header">
+                            <h3>Multi-Sucursal</h3>
+                            <p class="plan-desc">Para empresas en crecimiento con múltiples sedes y servidores.</p>
+                        </div>
+                        <div class="price-box">
+                            <span class="uf-price" data-uf="3.5">3.5 UF</span>
+                            <span class="billing">/ mes + IVA</span>
+                            <div class="clp-price" id="clp-multi">$133.000 CLP</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><span class="check">✓</span> Hasta 3 Appliances Box (Físicos o Virtuales)</li>
+                            <li><span class="check">✓</span> Hasta 50 Agentes Endpoints</li>
+                            <li><span class="check">✓</span> Consola Cloud Avanzada (Multi-inquilino)</li>
+                            <li><span class="check">✓</span> Score de Seguridad Individual e Integrado</li>
+                            <li><span class="check">✓</span> Alertas SOAR / Webhooks para automatización</li>
+                            <li><span class="check">✓</span> Soporte técnico prioritario 8x5</li>
+                        </ul>
+                        <div class="card-footer">
+                            <button class="btn btn-block btn-neon-blue glow-blue" onclick="selectPlan('Multi-Sucursal', 3.5)">Seleccionar Plan</button>
+                        </div>
+                    </div>
+
+                    <!-- PLAN 3: INSTITUCIONAL -->
+                    <div class="pricing-card glass">
+                        <div class="card-header">
+                            <h3>Institucional</h3>
+                            <p class="plan-desc">Seguridad corporativa y cumplimiento para grandes redes.</p>
+                        </div>
+                        <div class="price-box">
+                            <span class="uf-price-text">Cotizar</span>
+                            <span class="billing">A medida</span>
+                            <div class="clp-price" id="clp-enterprise">Consúltanos</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><span class="check">✓</span> Appliances Box Ilimitados</li>
+                            <li><span class="check">✓</span> Licenciamiento Corporativo de Endpoints</li>
+                            <li><span class="check">✓</span> Consola Dedicated Enterprise (On-Prem / Private Cloud)</li>
+                            <li><span class="check">✓</span> Integración nativa con CSIRT e incidentes estatales</li>
+                            <li><span class="check">✓</span> Soporte de Ciberseguridad 24/7/365</li>
+                            <li><span class="check">✓</span> Consultoría trimestral de cumplimiento</li>
+                        </ul>
+                        <div class="card-footer">
+                            <button class="btn btn-block btn-outline" onclick="selectPlan('Institucional', 'Cotizar')">Cotizar Proyecto</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT & QUOTE FORM -->
+        <section id="contacto" class="contact-section">
+            <div class="container">
+                <div class="contact-grid">
+                    <div class="contact-info-block">
+                        <div class="badge neon-text-green">💬 HABLEMOS DE SEGURIDAD</div>
+                        <h2>¿Listo para blindar tu PYME?</h2>
+                        <p class="contact-desc">
+                            Completa el formulario y uno de nuestros ingenieros especialistas en ciberseguridad y cumplimiento legal te guiará en el proceso de evaluación y despliegue técnico.
+                        </p>
+                        
+                        <div class="info-items">
+                            <div class="info-item">
+                                <span class="info-icon">📍</span>
+                                <div>
+                                    <h4>Ubicación</h4>
+                                    <p>Viña del Mar, Chile</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">✉️</span>
+                                <div>
+                                    <h4>Contacto</h4>
+                                    <p>contacto@pymeshield.cl</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-icon">📞</span>
+                                <div>
+                                    <h4>Soporte</h4>
+                                    <p>+56 2 2345 6789</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form-block glass">
+                        <h3>Solicitar Cotización y Demo</h3>
+                        <form id="quote-form" onsubmit="submitForm(event)">
+                            <div class="form-group">
+                                <label for="form-name">Nombre Completo</label>
+                                <input type="text" id="form-name" placeholder="Ej. Juan Pérez" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-email">Correo Corporativo</label>
+                                <input type="email" id="form-email" placeholder="Ej. jperez@miempresa.cl" required>
+                            </div>
+                            <div class="form-group-row">
+                                <div class="form-group">
+                                    <label for="form-company">Empresa / PYME</label>
+                                    <input type="text" id="form-company" placeholder="Ej. Comercializadora SpA" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="form-endpoints">Dispositivos a proteger</label>
+                                    <select id="form-endpoints" required>
+                                        <option value="1-10">1 a 10 equipos</option>
+                                        <option value="11-50">11 a 50 equipos</option>
+                                        <option value="51-200">51 a 200 equipos</option>
+                                        <option value="200+">Más de 200 equipos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-plan">Plan Seleccionado</label>
+                                <select id="form-plan" required>
+                                    <option value="PYME Starter">PYME Starter (1.5 UF/mes)</option>
+                                    <option value="Multi-Sucursal" selected>Multi-Sucursal (3.5 UF/mes)</option>
+                                    <option value="Institucional">Institucional (A Medida)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="form-msg">Mensaje / Requerimientos Adicionales</label>
+                                <textarea id="form-msg" rows="4" placeholder="Cuéntanos un poco sobre tu infraestructura actual o necesidades..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-neon-green btn-block glow-green">Enviar Solicitud</button>
+                        </form>
+                        
+                        <!-- Success message container -->
+                        <div id="form-success" class="form-success-alert glass" style="display: none;">
+                            <span class="success-icon">✓</span>
+                            <h4>¡Solicitud Recibida Correctamente!</h4>
+                            <p>Hemos registrado tu requerimiento. Un especialista te contactará a la brevedad para coordinar la instalación de la demo.</p>
+                            <button class="btn btn-outline btn-small" onclick="resetFormState()">Volver a enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <div class="logo-area">
+                    <img src="logo.png" alt="PymeShield Logo" class="footer-logo">
+                    <span class="logo-text">Pyme<span class="highlight">Shield</span></span>
+                </div>
+                <p>Ciberseguridad y Cumplimiento simplificado para la pequeña y mediana empresa en Chile.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Enlaces</h4>
+                <a href="#inicio">Inicio</a>
+                <a href="#componentes">Componentes</a>
+                <a href="#cumplimiento">Leyes y Cumplimiento</a>
+                <a href="#precios">Precios y Planes</a>
+            </div>
+            <div class="footer-legal">
+                <h4>Marco Regulatorio</h4>
+                <a href="https://www.bcn.cl" target="_blank">Ley N° 21.719 (Datos Personales)</a>
+                <a href="https://www.bcn.cl" target="_blank">Ley N° 21.663 (Ciberseguridad)</a>
+                <a href="https://nist.gov" target="_blank">NIST CSF 2.0</a>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 PymeShield. Todos los derechos reservados. Desarrollado para examen de título.</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT -->
+    <script>
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('active');
+        }
+
+        // Toggle compliance law accordion
+        function toggleLaw(header) {
+            const item = header.parentElement;
+            const content = item.querySelector('.law-content');
+            const arrow = header.querySelector('.arrow');
+            
+            // Check if active
+            const isActive = item.classList.contains('active');
+            
+            // Close all
+            document.querySelectorAll('.law-item').forEach(li => {
+                li.classList.remove('active');
+                li.querySelector('.arrow').innerText = '▼';
+            });
+            
+            if (!isActive) {
+                item.classList.add('active');
+                arrow.innerText = '▲';
+            }
+        }
+
+        // Initialize accordion with first open
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstHeader = document.querySelector('.law-header');
+            if (firstHeader) toggleLaw(firstHeader);
+            calculatePrices();
+            
+            // Add custom animation triggering for containment led demo
+            setInterval(() => {
+                const led = document.getElementById('led-containment');
+                if (led) {
+                    led.classList.toggle('blinking-fast');
+                    led.classList.toggle('pulse');
+                }
+            }, 6000);
+        });
+
+        // Price calculator based on dynamic UF input
+        function calculatePrices() {
+            const ufInput = document.getElementById('uf-value');
+            let ufVal = parseFloat(ufInput.value);
+            
+            if (isNaN(ufVal) || ufVal <= 0) {
+                ufVal = 38000; // Fallback
+            }
+
+            // Plans UF value
+            const starterUF = 1.5;
+            const multiUF = 3.5;
+
+            // Compute CLP
+            const starterCLP = Math.round(starterUF * ufVal);
+            const multiCLP = Math.round(multiUF * ufVal);
+
+            // Format as currency
+            const formatCLP = (val) => '$' + val.toLocaleString('es-CL') + ' CLP';
+
+            document.getElementById('clp-starter').innerText = formatCLP(starterCLP);
+            document.getElementById('clp-multi').innerText = formatCLP(multiCLP);
+        }
+
+        // Handle pricing button clicks to auto-select in form
+        function selectPlan(planName, ufPrice) {
+            const planSelect = document.getElementById('form-plan');
+            if (planSelect) {
+                planSelect.value = planName;
+            }
+            
+            // Smooth scroll to contact
+            const contactSec = document.getElementById('contacto');
+            if (contactSec) {
+                contactSec.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Form submission handling
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('form-name').value;
+            const email = document.getElementById('form-email').value;
+            const company = document.getElementById('form-company').value;
+            const endpoints = document.getElementById('form-endpoints').value;
+            const plan = document.getElementById('form-plan').value;
+            const message = document.getElementById('form-msg').value;
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/quotes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, company, endpoints, plan, message })
+                });
+                
+                if (response.ok) {
+                    document.getElementById('quote-form').style.display = 'none';
+                    document.getElementById('form-success').style.display = 'block';
+                } else {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'No se pudo registrar la cotización.'));
+                }
+            } catch (err) {
+                console.error('Error de red:', err);
+                alert('No se pudo conectar con el servidor local de PymeShield. Por favor, asegúrate de que el servidor está corriendo ejecutando "Iniciar PymeShield.bat" e intenta de nuevo.');
+            }
+        }
+
+
+        function resetFormState() {
+            document.getElementById('quote-form').reset();
+            document.getElementById('quote-form').style.display = 'block';
+            document.getElementById('form-success').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

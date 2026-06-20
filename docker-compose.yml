@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  pymeshield:
+    build: .
+    container_name: pymeshield-app
+    restart: unless-stopped
+    
+    # IMPORTANTE PARA ESCANEO DE RED:
+    # 1. En servidores Linux locales (como los de un colegio/CESFAM), usar 'network_mode: "host"' 
+    #    es obligatorio para permitir que nmap escanee la red fisica real del establecimiento.
+    # 2. Si despliegas en Windows/macOS con Docker Desktop para desarrollo, comenta 'network_mode: "host"' 
+    #    y habilita la linea de 'ports' para mapear el puerto de acceso.
+    
+    # network_mode: "host" # Descomentar para producción en Linux (CESFAM/Colegio)
+    ports:
+      - "3000:3000" # Habilitado para desarrollo en Windows/macOS
+
+    volumes:
+      - db-data:/app/prisma
+
+volumes:
+  db-data:
+    driver: local
