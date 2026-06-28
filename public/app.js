@@ -1001,6 +1001,48 @@ async function runScan() {
     if (!res.ok) {
       throw new Error('El motor de escaneo ya se encuentra ocupado.');
     }
+
+    // Si estamos en modo de demostración estática, simulamos el progreso del escaneo en el cliente
+    if (isStaticDemo) {
+      const progressFill = document.getElementById('progress-fill');
+      const progressVal = document.getElementById('progress-val');
+      const progressMsg = document.getElementById('progress-msg');
+      
+      const steps = [
+        { percent: 20, msg: 'Realizando barrido ARP en subred local...' },
+        { percent: 50, msg: 'Enviando sondas UDP para despertar dispositivos móviles...' },
+        { percent: 85, msg: 'Auditando puertos críticos en hosts descubiertos...' },
+        { percent: 100, msg: 'Escaneo completado. Sincronizando inventario...' }
+      ];
+      
+      let stepIdx = 0;
+      const interval = setInterval(() => {
+        if (stepIdx < steps.length) {
+          const step = steps[stepIdx];
+          progressFill.style.width = `${step.percent}%`;
+          progressVal.textContent = `${step.percent}%`;
+          progressMsg.textContent = step.msg;
+          stepIdx++;
+        } else {
+          clearInterval(interval);
+          
+          const now = new Date();
+          const lastScanElem = document.getElementById('last-scan');
+          if (lastScanElem) {
+            lastScanElem.textContent = `Último escaneo: hace un momento · ${now.toLocaleTimeString()}`;
+          }
+          
+          // Reactivar botón y ocultar barra
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          icon.classList.remove('spin');
+          document.getElementById('scan-progress-bar').classList.remove('active');
+          
+          // Refrescar inventario y alertas
+          loadDashboardData();
+        }
+      }, 500); // Duración total de la animación: 2 segundos
+    }
   } catch (error) {
     alert(error.message);
     btn.disabled = false;
