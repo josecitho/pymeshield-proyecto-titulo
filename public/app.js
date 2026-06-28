@@ -12,6 +12,235 @@ let mfaIsSetupMode = false;   // Bandera para saber si estamos en la configuraci
 let mfaTempSecret = '';       // Semilla secreta TOTP temporal durante el setup inicial
 let licenseStatus = 'Demo';   // Estado de la licencia comercial del software ('Demo' o 'Premium')
 
+// --- INTERCEPTOR DE SERVIDORES ESTÁTICOS (MOCK BACKEND PARA GITHUB PAGES) ---
+const isStaticDemo = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+if (isStaticDemo) {
+  console.log('[PymeShield Demo] Ejecutando en modo demostración estático (sin servidor backend). Interceptando API.');
+  
+  // Forzar inicio de sesión automático para facilitar la demostración online sin login manual
+  sessionStorage.setItem('pymeshield_auth', 'true');
+
+  // Base de datos en memoria para la demo
+  let mockDevices = [
+    { id: "1", ip: "192.168.1.1", mac: "0C:01:4B:E7:8A:60", hostname: "Puerta de Enlace (Router)", vendor: "ZTE Corporation", status: "Activo", isAuthorized: true, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] },
+    { id: "2", ip: "192.168.1.9", mac: "48:5C:2C:BD:D9:7E", hostname: "SMARTTV_JORGE", vendor: "Earda Technologies", status: "Activo", isAuthorized: true, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] },
+    { id: "3", ip: "192.168.1.10", mac: "64:BB:1E:4F:DC:0E", hostname: "TELE_JOSE_Y_EVA", vendor: "Earda Technologies", status: "Activo", isAuthorized: true, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] },
+    { id: "4", ip: "192.168.1.165", mac: "LOCAL-HOST-DEV", hostname: "pepeithor", vendor: "Dispositivo Genérico", status: "Activo", isAuthorized: true, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] },
+    { id: "5", ip: "192.168.1.168", mac: "EA:0A:DD:B3:DA:0B", hostname: "CELULAR_JOSE", vendor: "Dispositivo Genérico", status: "Bloqueado", isAuthorized: false, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] },
+    { id: "6", ip: "192.168.1.8", mac: "3E:C2:05:E2:C8:EF", hostname: "CELULAR-JORGE", vendor: "Dispositivo Genérico", status: "Activo", isAuthorized: true, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] },
+    { id: "7", ip: "192.168.1.122", mac: "92:DC:A9:AE:FF:A0", hostname: "CELULAR_TRABAJO-EVA", vendor: "Dispositivo Genérico", status: "Activo", isAuthorized: true, riskLevel: "Bajo", lastSeen: new Date().toISOString(), ports: [] }
+  ];
+
+  let mockAlerts = [
+    { id: "a1", title: "Dispositivo Bloqueado", description: "El dispositivo con IP 192.168.1.168 (CELULAR_JOSE) ha sido bloqueado del sistema.", riskLevel: "Azul", status: "No leída", createdAt: new Date().toISOString() },
+    { id: "a2", title: "Intento de Intrusión Simulado", description: "Se detectó un intento de escaneo ARP masivo desde la IP 192.168.1.168.", riskLevel: "Rojo", status: "No leída", createdAt: new Date().toISOString() }
+  ];
+
+  let mockLogs = [
+    { id: "l1", type: "SYSTEM_INIT", details: "Se inicializó el sistema PymeShield y se cargaron los datos de demostración.", ipAddress: "127.0.0.1", createdAt: new Date().toISOString() },
+    { id: "l2", type: "CONTAINMENT_ACTION", details: "NAC: Dispositivo sospechoso 'CELULAR_JOSE' (IP 192.168.1.168) bloqueado automáticamente.", ipAddress: "127.0.0.1", createdAt: new Date().toISOString() }
+  ];
+
+  let mockSettings = {
+    usuario: "admin",
+    zeroTrustMode: true,
+    webhookUrl: "https://api-soar.colegio.cl/alerts/webhook",
+    licenseKey: "PYMESHIELD-777-PREMIUM",
+    licenseStatus: "Premium",
+    mfaSecret: "J2FGT4RCWGHKOQZUO7B3PQ3JSTQH2V3C"
+  };
+
+  // Sobrescribimos window.fetch
+  const originalFetch = window.fetch;
+  window.fetch = async function (url, options) {
+    const cleanUrl = url.split('?')[0]; // Limpiar query params si existen
+    const method = (options && options.method || 'GET').toUpperCase();
+    
+    // Simular retraso de red de 150ms para realismo
+    await new Promise(r => setTimeout(r, 150));
+
+    if (cleanUrl === '/api/login' && method === 'POST') {
+      return {
+        ok: true,
+        json: async () => ({ success: true, mfaRequired: false })
+      };
+    }
+
+    if (cleanUrl === '/api/settings') {
+      if (method === 'GET') {
+        return { ok: true, json: async () => mockSettings };
+      }
+    }
+
+    if (cleanUrl === '/api/settings/update' && method === 'POST') {
+      const body = JSON.parse(options.body);
+      mockSettings.webhookUrl = body.webhookUrl;
+      mockSettings.zeroTrustMode = body.zeroTrustMode;
+      return { ok: true, json: async () => mockSettings };
+    }
+
+    if (cleanUrl === '/api/settings/toggle-demo' && method === 'POST') {
+      return { ok: true, json: async () => ({ success: true }) };
+    }
+
+    if (cleanUrl === '/api/devices') {
+      return { ok: true, json: async () => mockDevices };
+    }
+
+    if (cleanUrl === '/api/alerts') {
+      return { ok: true, json: async () => mockAlerts };
+    }
+
+    if (cleanUrl === '/api/recommendations') {
+      return {
+        ok: true,
+        json: async () => [
+          { id: "r1", category: "NAC", title: "Habilitar Control Zero-Trust", description: "Garantiza que ningún dispositivo nuevo pueda comunicarse sin autorización previa.", status: "Completado" },
+          { id: "r2", category: "MFA", title: "Doble Factor Activo", description: "La cuenta de administrador está protegida mediante TOTP.", status: "Completado" }
+        ]
+      };
+    }
+
+    if (cleanUrl === '/api/scans/history') {
+      return {
+        ok: true,
+        json: async () => [
+          { id: "s1", score: 95, devicesCount: 6, createdAt: "2026-06-27T10:00:00Z" },
+          { id: "s2", score: 90, devicesCount: 7, createdAt: "2026-06-27T12:00:00Z" },
+          { id: "s3", score: 85, devicesCount: 7, createdAt: "2026-06-27T14:00:00Z" }
+        ]
+      };
+    }
+
+    if (cleanUrl === '/api/audit-logs') {
+      return { ok: true, json: async () => mockLogs };
+    }
+
+    if (cleanUrl === '/api/devices/block' && method === 'POST') {
+      const body = JSON.parse(options.body);
+      const dev = mockDevices.find(d => d.id === body.id);
+      if (dev) {
+        dev.status = body.block ? 'Bloqueado' : 'Activo';
+        mockLogs.unshift({
+          id: String(Date.now()),
+          type: 'CONTAINMENT_ACTION',
+          details: body.block 
+            ? `Se bloqueó preventivamente el acceso de red al dispositivo sospechoso '${dev.hostname}' (IP ${dev.ip}) mediante Firewall.`
+            : `Se eliminó la regla de bloqueo y se restauró el acceso al dispositivo '${dev.hostname}' (IP ${dev.ip}).`,
+          ipAddress: '127.0.0.1',
+          createdAt: new Date().toISOString()
+        });
+        mockAlerts.unshift({
+          id: String(Date.now()),
+          title: body.block ? 'Dispositivo Bloqueado' : 'Dispositivo Desbloqueado',
+          description: `El dispositivo con IP ${dev.ip} (${dev.hostname}) ha sido ${body.block ? 'bloqueado' : 'desbloqueado'} del sistema.`,
+          riskLevel: body.block ? 'Azul' : 'Amarillo',
+          status: 'No leída',
+          createdAt: new Date().toISOString()
+        });
+        return { ok: true, json: async () => dev };
+      }
+    }
+
+    if (cleanUrl === '/api/devices/toggle-authorize' && method === 'POST') {
+      const body = JSON.parse(options.body);
+      const dev = mockDevices.find(d => d.id === body.id);
+      if (dev) {
+        dev.isAuthorized = body.authorize;
+        if (body.alias !== undefined) dev.alias = body.alias;
+        
+        // Simular nuestra nueva funcionalidad de autodesbloqueo al autorizar
+        if (dev.isAuthorized && dev.status === 'Bloqueado') {
+          dev.status = 'Activo';
+        }
+        
+        mockLogs.unshift({
+          id: String(Date.now()),
+          type: 'POLICY_CHANGE',
+          details: dev.isAuthorized
+            ? `Se marcó al dispositivo '${dev.alias || dev.hostname}' (IP ${dev.ip}) como de 'Confianza'.`
+            : `Se marcó al dispositivo '${dev.alias || dev.hostname}' (IP ${dev.ip}) como 'Sospechoso/No Autorizado'.`,
+          ipAddress: '127.0.0.1',
+          createdAt: new Date().toISOString()
+        });
+        return { ok: true, json: async () => dev };
+      }
+    }
+
+    if (cleanUrl === '/api/alerts/read-all' && method === 'POST') {
+      mockAlerts.forEach(a => a.status = 'Leída');
+      return { ok: true, json: async () => ({ success: true }) };
+    }
+
+    if (cleanUrl === '/api/scan' && method === 'POST') {
+      // Simula agregar un dispositivo temporal nuevo
+      if (!mockDevices.some(d => d.ip === '192.168.1.200')) {
+        mockDevices.push({
+          id: "200",
+          ip: "192.168.1.200",
+          mac: "F8:E9:03:AB:12:34",
+          hostname: "Invitado-PC",
+          vendor: "Apple Inc.",
+          status: mockSettings.zeroTrustMode ? "Bloqueado" : "Activo",
+          isAuthorized: !mockSettings.zeroTrustMode,
+          riskLevel: "Bajo",
+          lastSeen: new Date().toISOString(),
+          ports: []
+        });
+        if (mockSettings.zeroTrustMode) {
+          mockAlerts.unshift({
+            id: String(Date.now()),
+            title: "Dispositivo Bloqueado",
+            description: "El dispositivo con IP 192.168.1.200 (Invitado-PC) ha sido bloqueado automáticamente por NAC Zero-Trust.",
+            riskLevel: "Rojo",
+            status: "No leída",
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+      return { ok: true, json: async () => ({ success: true }) };
+    }
+
+    if (cleanUrl === '/api/scan/simulate-attack' && method === 'POST') {
+      mockAlerts.unshift({
+        id: String(Date.now()),
+        title: "Ataque Detectado",
+        description: "Alerta Crítica: Simulación de escaneo de vulnerabilidades detectada en la red local.",
+        riskLevel: "Rojo",
+        status: "No leída",
+        createdAt: new Date().toISOString()
+      });
+      return { ok: true, json: async () => ({ success: true }) };
+    }
+
+    if (cleanUrl === '/api/assistant' && method === 'POST') {
+      const body = JSON.parse(options.body);
+      const msg = body.message.toLowerCase();
+      let reply = "Lo siento, soy el asistente fuera de línea de PymeShield. No logré entender tu consulta. Prueba preguntándome sobre 'Zero-Trust', 'Modo NOC', 'Ley 21.719' o 'Docker'.";
+      if (msg.includes('zero-trust') || msg.includes('nac')) {
+        reply = "El Control de Admisión Zero-Trust (NAC) bloquea a cualquier dispositivo nuevo en el cortafuegos hasta que sea expresamente autorizado por un administrador en la Lista Blanca.";
+      } else if (msg.includes('noc')) {
+        reply = "El Modo NOC activa el monitoreo visual a pantalla completa, la sirena acústica de eventos críticos (usando Web Audio API para no sobrecargar el sistema) y actualiza la topología dinámicamente.";
+      } else if (msg.includes('ley') || msg.includes('21.719') || msg.includes('21.663')) {
+        reply = "PymeShield te ayuda a cumplir con la Ley N° 21.719 (Protección de Datos Personales, evitando multas de hasta 20.000 UTM) y la Ley Marco de Ciberseguridad N° 21.663 (obligación de reporte de incidentes graves en 3 horas).";
+      } else if (msg.includes('docker') || msg.includes('despliegue')) {
+        reply = "PymeShield se despliega fácilmente en un contenedor Docker utilizando 'docker-compose up -d', lo que garantiza portabilidad y aislamiento seguro de dependencias.";
+      }
+      return {
+        ok: true,
+        json: async () => ({ response: reply })
+      };
+    }
+
+    if (cleanUrl === '/api/settings/test-webhook' && method === 'POST') {
+      return { ok: true, json: async () => ({ success: true }) };
+    }
+
+    // Default fallback
+    return originalFetch(url, options);
+  };
+}
+
 // EVENTO DE INICIO: Se ejecuta de forma automática en cuanto el HTML termina de cargarse en el navegador
 document.addEventListener('DOMContentLoaded', () => {
   // Verificamos en el almacenamiento de sesión si el usuario ya se logueó previamente
@@ -773,6 +1002,10 @@ function downloadPDF() {
 
 // CONECTAR WEBSOCKET: Escucha eventos reactivos empujados por el servidor server.js
 function connectWebSocket() {
+  if (window.location.hostname.includes('github.io') || window.location.protocol === 'file:') {
+    console.log('[PymeShield Demo] Omitiendo canal de WebSocket en entorno estático.');
+    return;
+  }
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${protocol}//${window.location.host}/ws`;
   

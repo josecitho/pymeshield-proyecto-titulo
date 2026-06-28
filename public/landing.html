@@ -28,7 +28,7 @@
                 <a href="#contacto">Contacto</a>
             </nav>
             <div class="cta-area">
-                <a href="http://localhost:3000" class="btn btn-neon-blue nav-cta">Acceso Consola</a>
+                <a href="index.html" class="btn btn-neon-blue nav-cta">Acceso Consola</a>
             </div>
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
                 <span></span>
@@ -45,7 +45,7 @@
         <a href="#cumplimiento" onclick="toggleMobileMenu()">Leyes y Cumplimiento</a>
         <a href="#precios" onclick="toggleMobileMenu()">Planes</a>
         <a href="#contacto" onclick="toggleMobileMenu()">Contacto</a>
-        <a href="http://localhost:3000" class="btn btn-neon-blue mobile-cta">Acceso Consola</a>
+        <a href="index.html" class="btn btn-neon-blue mobile-cta">Acceso Consola</a>
     </div>
 
     <!-- MAIN CONTAINER -->
@@ -61,7 +61,7 @@
                         Protege tu negocio contra ransomware y ataques avanzados mientras cumples de forma automatizada con las nuevas leyes **N° 21.719** y **N° 21.663** en Chile. Sin complicaciones técnicas.
                     </p>
                     <div class="hero-actions">
-                        <a href="http://localhost:3000" class="btn btn-neon-green btn-large glow-green">Ver Demo Interactiva</a>
+                        <a href="index.html" class="btn btn-neon-green btn-large glow-green">Ver Demo Interactiva</a>
                         <a href="#componentes" class="btn btn-outline btn-large">Saber Más</a>
                     </div>
                     <div class="hero-features-list">
@@ -536,8 +536,15 @@
             const plan = document.getElementById('form-plan').value;
             const message = document.getElementById('form-msg').value;
             
+            // Simular éxito en modo estático/demo online
+            if (window.location.hostname.includes('github.io') || window.location.protocol === 'file:') {
+                document.getElementById('quote-form').style.display = 'none';
+                document.getElementById('form-success').style.display = 'block';
+                return;
+            }
+            
             try {
-                const response = await fetch('http://localhost:3000/api/quotes', {
+                const response = await fetch('/api/quotes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
