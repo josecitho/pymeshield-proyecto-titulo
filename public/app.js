@@ -45,8 +45,8 @@ if (isStaticDemo) {
     usuario: "admin",
     zeroTrustMode: true,
     webhookUrl: "https://api-soar.colegio.cl/alerts/webhook",
-    licenseKey: "PYMESHIELD-777-PREMIUM",
-    licenseStatus: "Premium",
+    licenseKey: "",
+    licenseStatus: "Demo",
     mfaSecret: "J2FGT4RCWGHKOQZUO7B3PQ3JSTQH2V3C"
   };
 
@@ -72,6 +72,21 @@ if (isStaticDemo) {
       }
     }
 
+    if (cleanUrl === '/api/settings/activate-license' && method === 'POST') {
+      const body = JSON.parse(options.body);
+      if (body.key === 'PYMESHIELD-777-PREMIUM') {
+        mockSettings.licenseStatus = 'Premium';
+        mockSettings.licenseKey = 'PYMESHIELD-777-PREMIUM';
+        return { ok: true, json: async () => ({ success: true, status: 'Premium' }) };
+      } else {
+        return { 
+          ok: false, 
+          status: 400, 
+          json: async () => ({ error: 'Clave de licencia inválida o expirada.' }) 
+        };
+      }
+    }
+
     if (cleanUrl === '/api/settings/update' && method === 'POST') {
       const body = JSON.parse(options.body);
       mockSettings.webhookUrl = body.webhookUrl;
@@ -84,6 +99,10 @@ if (isStaticDemo) {
     }
 
     if (cleanUrl === '/api/devices') {
+      // Si la licencia es Demo, limitamos el escaneo a un máximo de 5 dispositivos en el inventario
+      if (mockSettings.licenseStatus === 'Demo') {
+        return { ok: true, json: async () => mockDevices.slice(0, 5) };
+      }
       return { ok: true, json: async () => mockDevices };
     }
 

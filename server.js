@@ -914,11 +914,22 @@ app.post('/api/devices/toggle-authorize', async (req, res) => {
       nextAuthorized = true;
     }
 
+    let nextStatus = device.status;
+    if (nextAuthorized && device.status === 'Bloqueado') {
+      nextStatus = 'Activo';
+      try {
+        await executeFirewallBlock(device.ip, false);
+      } catch (err) {
+        console.log('[Firewall] No se pudo desbloquear automáticamente al autorizar.');
+      }
+    }
+
     const updated = await prisma.device.update({
       where: { id },
       data: { 
         isAuthorized: nextAuthorized,
-        alias: nextAlias
+        alias: nextAlias,
+        status: nextStatus
       },
     });
     
