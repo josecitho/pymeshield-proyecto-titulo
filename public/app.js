@@ -17,8 +17,11 @@ const isStaticDemo = window.location.hostname.includes('github.io') || window.lo
 if (isStaticDemo) {
   console.log('[PymeShield Demo] Ejecutando en modo demostración estático (sin servidor backend). Interceptando API.');
   
-  // Forzar inicio de sesión automático para facilitar la demostración online sin login manual
-  sessionStorage.setItem('pymeshield_auth', 'true');
+  // Forzar inicio de sesión automático para facilitar la demostración online sin login manual,
+  // a menos que el usuario haya hecho clic explícitamente en "Cerrar Sesión".
+  if (sessionStorage.getItem('pymeshield_logged_out') !== 'true') {
+    sessionStorage.setItem('pymeshield_auth', 'true');
+  }
 
   // Base de datos en memoria para la demo
   let mockDevices = [
@@ -60,6 +63,7 @@ if (isStaticDemo) {
     await new Promise(r => setTimeout(r, 150));
 
     if (cleanUrl === '/api/login' && method === 'POST') {
+      sessionStorage.removeItem('pymeshield_logged_out');
       return {
         ok: true,
         json: async () => ({ success: true, mfaRequired: false })
@@ -456,6 +460,9 @@ async function handleChangePassword(event) {
 // CERRAR SESIÓN: Remueve la credencial del almacenamiento temporal y recarga el navegador
 function logout() {
   sessionStorage.removeItem('pymeshield_auth');
+  if (window.location.hostname.includes('github.io') || window.location.protocol === 'file:') {
+    sessionStorage.setItem('pymeshield_logged_out', 'true');
+  }
   window.location.reload();
 }
 
