@@ -2296,7 +2296,6 @@ async function triggerAttackSimulation() {
 
 // REPRODUCIR SIRENAS DE ADVERTENCIA USANDO AUDIO SINTETIZADO (WEB AUDIO API)
 function playAlarmBeeps() {
-  // Solo sonar si el interruptor del Modo NOC está activo
   const nocToggle = document.getElementById('noc-toggle');
   if (!nocToggle || !nocToggle.checked) return;
 
@@ -2310,23 +2309,64 @@ function playAlarmBeeps() {
     
     const now = audioCtx.currentTime;
     
-    // Genera 3 beeps agudos y continuos (frecuencia alta 980Hz) simulando una alarma de intrusión
-    playBeep(980, 0.15, now);
-    playBeep(980, 0.15, now + 0.25);
-    playBeep(980, 0.15, now + 0.5);
+    // Sirena oscilante de doble tono (tipo emergencia industrial) que dura 5 segundos
+    for (let i = 0; i < 10; i++) {
+      const time = now + (i * 0.5);
+      // Alterna entre C6 (1047 Hz) para el tono alto y A5 (880 Hz) para el tono bajo
+      const freq = (i % 2 === 0) ? 1047.5 : 880;
+      playBeep(freq, 0.4, time, 'sawtooth');
+    }
+    
+    // Lanzar efecto visual de baliza estroboscopica de emergencia
+    triggerVisualStrobe();
   } catch (e) {
-    console.warn("Error en la alarma acústica:", e);
+    console.warn("Error en la alarma acustica:", e);
   }
 }
 
+// EFECTO VISUAL ESTROBOSCOPICO: Destellos rojos en pantalla para alertar visualmente al operador
+function triggerVisualStrobe() {
+  let strobe = document.getElementById('emergency-strobe');
+  if (!strobe) {
+    strobe = document.createElement('div');
+    strobe.id = 'emergency-strobe';
+    strobe.style.position = 'fixed';
+    strobe.style.top = '0';
+    strobe.style.left = '0';
+    strobe.style.width = '100vw';
+    strobe.style.height = '100vh';
+    strobe.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+    strobe.style.pointerEvents = 'none';
+    strobe.style.zIndex = '99999';
+    strobe.style.transition = 'opacity 0.1s ease-in-out';
+    strobe.style.opacity = '0';
+    document.body.appendChild(strobe);
+  }
+  
+  let count = 0;
+  const interval = setInterval(() => {
+    strobe.style.opacity = (strobe.style.opacity === '0') ? '1' : '0';
+    count++;
+    if (count >= 20) { // 10 destellos (20 cambios de estado)
+      clearInterval(interval);
+      strobe.style.opacity = '0';
+      setTimeout(() => {
+        if (strobe && strobe.parentNode) {
+          strobe.parentNode.removeChild(strobe);
+        }
+      }, 200);
+    }
+  }, 250);
+}
+
 // FUNCIÓN SINTETIZADORA DE NOTA: Levanta oscilador físico en el kernel de audio del SO
-function playBeep(frequency, duration, startTime) {
+function playBeep(frequency, duration, startTime, type = 'sine') {
   if (!audioCtx) return;
   
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
   
-  osc.type = 'sine'; // Onda sinusoidal pura
+  osc.type = type; // Onda sinusoidal pura
   osc.frequency.setValueAtTime(frequency, startTime);
   
   gainNode.gain.setValueAtTime(0.12, startTime); // Control de volumen del sensor

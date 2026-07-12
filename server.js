@@ -37,7 +37,7 @@ if (!fs.existsSync(credsPath)) {
 
 // Variables de configuración de red y directivas
 let demoMode = true;
-let zeroTrustMode = false;
+let zeroTrustMode = true;
 let webhookUrl = '';
 let licenseKey = '';
 let licenseStatus = 'Demo';
@@ -46,7 +46,7 @@ try {
   const creds = JSON.parse(fs.readFileSync(credsPath, 'utf8'));
   let updated = false;
   if (creds.zeroTrustMode === undefined) {
-    creds.zeroTrustMode = false;
+    creds.zeroTrustMode = true;
     updated = true;
   }
   if (creds.webhookUrl === undefined) {
@@ -2042,6 +2042,78 @@ server.on('upgrade', (request, socket, head) => {
 
 server.listen(PORT, async () => {
   console.log(`\n========================================`);
+  // GENERADOR DINÁMICO DE CÓDIGO QR PARA EXAMEN DE TÍTULO
+  try {
+    const { networkInterfaces } = require('os');
+    const QRCode = require('qrcode');
+    const nets = networkInterfaces();
+    let localIp = '127.0.0.1';
+    let ipCandidates = [];
+    
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          const lowerName = name.toLowerCase();
+          // Detectar interfaces virtuales o auxiliares
+          const isVirtual = lowerName.includes('virtual') || 
+                            lowerName.includes('vbox') || 
+                            lowerName.includes('vmware') || 
+                            lowerName.includes('wsl') || 
+                            lowerName.includes('vethernet') || 
+                            lowerName.includes('docker') || 
+                            lowerName.includes('bluetooth') ||
+                            lowerName.includes('loopback') ||
+                            lowerName.includes('host-only') ||
+                            (lowerName.startsWith('ethernet ') && lowerName !== 'ethernet');
+          
+          const isApipa = net.address.startsWith('169.254.');
+          
+          if (!isApipa) {
+            let priority = 1; // Prioridad baja por defecto
+            if (lowerName.includes('wi-fi') || lowerName.includes('wifi') || lowerName.includes('wireless')) {
+              priority = 3; // Máxima prioridad para Wi-Fi
+            } else if (lowerName === 'ethernet' || lowerName.includes('conexion de area local')) {
+              priority = 2; // Prioridad media para cable físico
+            }
+            ipCandidates.push({ address: net.address, priority, name });
+          }
+        }
+      }
+    }
+    
+    // Ordenar candidatos por prioridad descendente
+    ipCandidates.sort((a, b) => b.priority - a.priority);
+    if (ipCandidates.length > 0) {
+      localIp = ipCandidates[0].address;
+    }
+    
+    const landingUrl = `http://${localIp}:${PORT}/landing.html`;
+    const qrOutputPath = path.join(__dirname, 'public', 'qr_landing.png');
+    QRCode.toFile(qrOutputPath, landingUrl, {
+      width: 300,
+      margin: 2,
+      color: {
+        dark: '#1F4E79',
+        light: '#FFFFFF'
+      }
+    }, (err) => {
+      if (err) console.error('Error generando QR de Landing:', err);
+      else {
+        console.log(`[PymeShield QR] Código QR de red local generado correctamente:`);
+        printQrInTerminal(landingUrl);
+      }
+    });
+  } catch (qrErr) {
+    console.error('Error inicializando generador QR:', qrErr.message);
+  }
+
+  function printQrInTerminal(url) {
+    console.log(`  ========================================`);
+    console.log(`  🌐 ACCESO MÓVIL COMISIÓN:`);
+    console.log(`  Enlace: ${url}`);
+    console.log(`  Archivo: public/qr_landing.png`);
+    console.log(`  ========================================`);
+  }
   console.log(`Servidor PymeShield iniciado en puerto ${PORT}`);
   console.log(`Dirección: http://localhost:${PORT}`);
   console.log(`========================================\n`);

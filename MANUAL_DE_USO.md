@@ -9,7 +9,10 @@ Este manual describe el proceso de puesta en marcha (activación) y el uso opera
 Para facilitar la adopción masiva en PYMEs, Colegios y CESFAM, PymeShield cuenta con un **Asistente de Instalación Automatizado**.
 
 1. **Copiar la carpeta**: Conecte el pendrive y copie la carpeta **`ProyectoPymeShield`** completa en el computador local (ej. en el Escritorio).
-2. **Iniciar el Asistente**: Abra la carpeta y haga **doble clic** en el archivo **`Instalar_PymeShield.bat`**.
+2. **Iniciar el Asistente (Permisos de Administrador)**: Abra la carpeta, haga **clic derecho** sobre el archivo **`Instalar_PymeShield.bat`** y seleccione **"Ejecutar como administrador"**. Esto es obligatorio para otorgar los privilegios necesarios de Windows para que el asistente pueda descargar e instalar Node.js de fondo en silencio.
+
+   > [!IMPORTANT]
+   > **Ejecutar como Administrador:** Si ejecuta el instalador con un doble clic simple, la instalación automática de Node.js fallará silenciosamente en el fondo debido a restricciones de seguridad de Windows (UAC).
 3. **Filtro de seguridad de Windows (SmartScreen)**:
    * Al ser la primera vez que inicia el asistente, es posible que Windows muestre una advertencia azul diciendo *"Windows protegió su PC"*.
    * Haga clic en el enlace **"Más información"** y luego presione el botón **"Ejecutar de todas formas"**.
@@ -18,9 +21,9 @@ Para facilitar la adopción masiva en PYMEs, Colegios y CESFAM, PymeShield cuent
    * *[1] Instalación Automática (Recomendado):* Descargará e instalará Node.js de forma silenciosa en segundo plano directamente desde `nodejs.org`.
    * *[2] Instalación Manual (Seguro):* Abrirá la web oficial de Node.js en su navegador para que lo instale usted mismo si prefiere un control directo de seguridad.
    * *[3] Cancelar:* Cancela y sale del asistente de instalación.
-5. **Configuración de Dependencias y Base de Datos:**
+6. **Configuración de Dependencias y Base de Datos:**
    Tras validar Node.js, el asistente instalará las dependencias de software y sincronizará la base de datos SQLite local de forma automatizada.
-6. **Acceso Directo en el Escritorio:**
+7. **Acceso Directo en el Escritorio:**
    El asistente creará automáticamente un acceso directo llamado **`PymeShield`** en su Escritorio de Windows y levantará la aplicación por primera vez en su navegador (`http://localhost:3000`).
 
 ---

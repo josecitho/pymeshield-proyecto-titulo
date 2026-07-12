@@ -1,10 +1,22 @@
 @echo off
+cd /d "%~dp0"
 title Asistente de Instalación - PymeShield
 echo =======================================================
 echo   PymeShield - Panel de Ciberseguridad de Red
 echo   Asistente de Instalación y Configuración Inicial
 echo =======================================================
 echo.
+
+:: Verificar privilegios de administrador para la instalación silenciosa de MSI
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [ADVERTENCIA] No se han detectado permisos de Administrador.
+    echo Para que la instalacion automatica de Node.js funcione, se recomienda
+    echo ejecutar este instalador como Administrador.
+    echo Haga clic derecho en "Instalar_PymeShield.bat" y elija "Ejecutar como administrador".
+    echo.
+)
+
 
 :: 1. Verificar si Node.js ya está instalado en el sistema
 where node >nul 2>nul
@@ -43,7 +55,7 @@ goto MENU
 echo.
 echo [+] Iniciando Descarga Automática de Node.js LTS...
 echo     Descargando instalador seguro desde nodejs.org, por favor espere...
-powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://nodejs.org/dist/v20.11.0/node-v20.11.0-x64.msi' -OutFile '$env:TEMP\node-setup.msi'"
+powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://nodejs.org/dist/v22.13.0/node-v22.13.0-x64.msi' -OutFile '%TEMP%\node-setup.msi'"
 if %errorlevel% neq 0 (
     echo [ERROR] No se pudo descargar Node.js. Verifique su conexión a Internet.
     pause
@@ -52,20 +64,38 @@ if %errorlevel% neq 0 (
 
 echo [+] Instalando Node.js de forma silenciosa en segundo plano...
 echo     Esta operación puede tardar un minuto. Por favor, espere...
-powershell -Command "Start-Process msiexec.exe -ArgumentList '/i', '$env:TEMP\node-setup.msi', '/quiet', '/norestart' -Wait"
+powershell -Command "Start-Process msiexec.exe -ArgumentList '/i', '%TEMP%\node-setup.msi', '/quiet', '/norestart' -Wait"
 
 :: Refrescar temporalmente el PATH en la sesión de CMD actual para continuar sin reiniciar consola
 echo [+] Actualizando variables de entorno locales de la sesión...
 set "PATH=%PATH%;C:\Program Files\nodejs\"
 set "PATHEXT=%PATHEXT%;.JS"
 
+
 :: Re-verificar si la instalación automática fue exitosa
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [ERROR] La instalación automática falló. Intente con la opción manual [2].
-    pause
-    goto MENU
+    echo.
+    echo [!] No se pudo completar la instalacion silenciosa.
+    echo     Iniciando el instalador visual de Node.js ya descargado...
+    start "" "%TEMP%\node-setup.msi"
+    echo.
+    echo [Paso Requerido] Complete el asistente de instalacion de Node.js en su pantalla.
+    echo Presione cualquier tecla AQUI una vez que haya finalizado la instalacion...
+    pause >nul
+    
+    :: Actualizar PATH local de la sesión de CMD
+    set "PATH=%PATH%;C:\Program Files\nodejs\"
+    set "PATHEXT=%PATHEXT%;.JS"
+    
+    where node >nul 2>nul
+    if %errorlevel% neq 0 (
+        echo [ERROR] Aun no se detecta la instalacion. Intente con la opcion manual [2].
+        pause
+        goto MENU
+    )
 )
+
 echo [+] Node.js instalado de forma automática exitosamente.
 goto DEPENDENCIAS
 

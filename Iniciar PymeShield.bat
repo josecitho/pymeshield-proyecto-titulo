@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 title Lanzador PymeShield
 echo =======================================================
 echo   PymeShield - Panel de Seguridad de Red para PYMEs
