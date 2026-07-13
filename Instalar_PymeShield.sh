@@ -23,7 +23,9 @@ if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
     if [ "$opcion" = "1" ]; then
         echo "[+] Detectando distribucion de Linux e instalando Node.js y NPM..."
         if [ -f /etc/debian_version ]; then
-            sudo apt-get update && sudo apt-get install -y nodejs npm
+            # Configurar apt-get para ejecucion 100% no interactiva (evita prompts de libc6)
+            export DEBIAN_FRONTEND=noninteractive
+            sudo apt-get update && sudo apt-get install -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" nodejs npm
         elif [ -f /etc/redhat-release ]; then
             sudo dnf install -y nodejs npm || sudo yum install -y nodejs npm
         elif [ -f /etc/arch-release ]; then
