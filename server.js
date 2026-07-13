@@ -451,28 +451,28 @@ async function seedData() {
   await prisma.recommendation.createMany({
     data: [
       { 
-        title: 'Cerrar el soporte tecnico a distancia del disco de la oficina', 
-        description: 'Tu disco duro compartido (Servidor NAS) tiene encendida una entrada secreta para soporte tecnico a distancia (SSH). Esto es como dejar la puerta trasera del local sin llave.<br><br><strong>Guia paso a paso para Don Oscar (o un nino de 15 anos):</strong><br>1. En tu computador, abre el navegador de Internet (como Chrome o Edge).<br>2. Escribe la direccion de tu disco de archivos (ejemplo: 192.168.1.45) y entra con tu clave.<br>3. Busca el menu de <strong>Panel de Control</strong> y luego entra a la opcion <strong>Terminal</strong> (el boton con forma de pantalla negra).<br>4. Desmarca la casilla que dice <strong>'Habilitar servicio SSH'</strong>.<br>5. Presiona el boton azul <strong>'Aplicar'</strong> para guardar.', 
-        priority: 'Alta', 
-        status: 'Pendiente' 
+        title: `Cerrar el soporte tecnico a distancia del disco de la oficina`, 
+        description: `Tu disco duro compartido (Servidor NAS) tiene encendida una entrada secreta para soporte tecnico a distancia (SSH). Esto es como dejar la puerta trasera del local sin llave.<br><br><strong>Guia paso a paso para Don Oscar (o un nino de 15 anos):</strong><br>1. En tu computador, abre el navegador de Internet (como Chrome o Edge).<br>2. Escribe la direccion de tu disco de archivos (ejemplo: 192.168.1.45) y entra con tu clave.<br>3. Busca el menu de <strong>Panel de Control</strong> y luego entra a la opcion <strong>Terminal</strong> (el boton con forma de pantalla negra).<br>4. Desmarca la casilla que dice <strong>'Habilitar servicio SSH'</strong>.<br>5. Presiona el boton azul <strong>'Aplicar'</strong> para guardar.`, 
+        priority: `Alta`, 
+        status: `Pendiente` 
       },
       { 
-        title: 'Apagar el control de pantalla a distancia en el PC de Contabilidad', 
-        description: 'El computador "PC Contabilidad" tiene activada una funcion llamada Escritorio Remoto. Esto es como dejar una ventana abierta por donde cualquiera desde Internet podria intentar controlar tu pantalla con un control remoto sin tu permiso.<br><br><strong>Guia paso a paso para Don Oscar:</strong><br>1. Camina hasta el computador fisico de Contabilidad.<br>2. Haz clic en el boton de Inicio de Windows (el logo de las 4 ventanitas abajo a la izquierda de la pantalla).<br>3. Haz clic en el engranaje de <strong>Configuracion</strong>.<br>4. Entra al menu <strong>Sistema</strong> y luego busca abajo donde dice <strong>Escritorio remoto</strong>.<br>5. Apaga el interruptor principal que dice <strong>'Habilitar Escritorio remoto'</strong>.<br>6. Dale clic en "Confirmar".', 
-        priority: 'Alta', 
-        status: 'Pendiente' 
+        title: `Apagar el control de pantalla a distancia en el PC de Contabilidad`, 
+        description: `El computador "PC Contabilidad" tiene activada una funcion llamada Escritorio Remoto. Esto es como dejar una ventana abierta por donde cualquiera desde Internet podria intentar controlar tu pantalla con un control remoto sin tu permiso.<br><br><strong>Guia paso a paso para Don Oscar:</strong><br>1. Camina hasta el computador fisico de Contabilidad.<br>2. Haz clic en el boton de Inicio de Windows (el logo de las 4 ventanitas abajo a la izquierda de la pantalla).<br>3. Haz clic en el engranaje de <strong>Configuracion</strong>.<br>4. Entra al menu <strong>Sistema</strong> y luego busca abajo donde dice <strong>Escritorio remoto</strong>.<br>5. Apaga el interruptor principal que dice <strong>'Habilitar Escritorio remoto'</strong>.<br>6. Dale clic en "Confirmar".`, 
+        priority: `Alta`, 
+        status: `Pendiente` 
       },
       { 
-        title: 'Sacar a celulares o computadores desconocidos de tu red Wi-Fi', 
-        description: 'Hemos detectado un celular extrano conectado al Wi-Fi de tu negocio. Si no es de tus empleados o clientes de confianza, podria intentar mirar tus archivos o robar internet.<br><br><strong>Guia paso a paso para Don Oscar:</strong><br>1. En la tabla de dispositivos de este panel, busca el celular desconocido y presiona el boton rojo <strong>'Bloquear'</strong> para cortarle el paso.<br>2. Para sacarlo para siempre, cambia la clave de tu Wi-Fi: abre tu navegador web, escribe la direccion de tu módem (ej: 192.168.1.1) y cambia la contraseña de tu red en la pestaña de <strong>Seguridad del Wi-Fi</strong>.<br>3. Conecta de nuevo solo tus equipos de confianza con la nueva clave.', 
-        priority: 'Alta', 
-        status: 'Pendiente' 
+        title: `Sacar a celulares o computadores desconocidos de tu red Wi-Fi`, 
+        description: `Hemos detectado un celular extrano conectado al Wi-Fi de tu negocio. Si no es de tus empleados o clientes de confianza, podria intentar mirar tus archivos o robar internet.<br><br><strong>Guia paso a paso para Don Oscar:</strong><br>1. En la tabla de dispositivos de este panel, busca el celular desconocido y presiona el boton rojo <strong>'Bloquear'</strong> para cortarle el paso.<br>2. Para sacarlo para siempre, cambia la clave de tu Wi-Fi: abre tu navegador web, escribe la direccion de tu modem (ej: 192.168.1.1) y cambia la contraseña de tu red en la pestaña de <strong>Seguridad del Wi-Fi</strong>.<br>3. Conecta de nuevo solo tus equipos de confianza con la nueva clave.`, 
+        priority: `Alta`, 
+        status: `Pendiente` 
       },
       { 
-        title: 'Actualizar el sistema del aparato de tu Wi-Fi (Router)', 
-        description: 'El módem/aparato que te da Internet (Router) tiene su sistema interno desactualizado. Es como tener un candado viejo que los ladrones ya saben como abrir facil.<br><br><strong>Guia paso a paso para Don Oscar:</strong><br>1. Toma tu telefono y llama al numero de soporte de tu proveedor de internet (ej. Movistar: 103, VTR: 600 800 9000).<br>2. Pide que te comuniquen con <strong>Soporte Tecnico de Internet</strong>.<br>3. Diles esto textualmente: <em>"Hola, mi módem tiene fallas de seguridad. Por favor, actualicen el software interno (firmware) de mi módem a la ultima version disponible desde alla"</em>.<br>4. Ellos lo haran gratis, por internet, en menos de 5 minutos.', 
-        priority: 'Media', 
-        status: 'Pendiente' 
+        title: `Actualizar el sistema del aparato de tu Wi-Fi (Router)`, 
+        description: `El modem/aparato que te da Internet (Router) tiene su sistema interno desactualizado. Es como tener un candado viejo que los ladrones ya saben como abrir facil.<br><br><strong>Guia paso a paso para Don Oscar:</strong><br>1. Toma tu telefono y llama al numero de soporte de tu proveedor de internet (ej. Movistar: 103, VTR: 600 800 9000).<br>2. Pide que te comuniquen con <strong>Soporte Tecnico de Internet</strong>.<br>3. Diles esto textualmente: <em>"Hola, mi modem tiene fallas de seguridad. Por favor, actualicen el software interno (firmware) de mi modem a la ultima version disponible desde alla"</em>.<br>4. Ellos lo haran gratis, por internet, en menos de 5 minutos.`, 
+        priority: `Media`, 
+        status: `Pendiente` 
       },
     ]
   });
