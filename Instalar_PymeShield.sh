@@ -53,6 +53,38 @@ echo "  [2/2] Sincronizando base de datos local SQLite (Prisma)"
 echo "======================================================="
 npx prisma db push
 
+# Crear Acceso Directo en el Escritorio (Linux .desktop)
+DESKTOP_DIR="$HOME/Desktop"
+# Alternativa en espanol para Escritorio si existe
+if [ ! -d "$DESKTOP_DIR" ] && [ -d "$HOME/Escritorio" ]; then
+    DESKTOP_DIR="$HOME/Escritorio"
+fi
+
+if [ -d "$DESKTOP_DIR" ]; then
+    echo ""
+    echo "======================================================="
+    echo "  Creando Acceso Directo de PymeShield en tu Escritorio"
+    echo "======================================================="
+    DESKTOP_FILE="$DESKTOP_DIR/PymeShield.desktop"
+    cat <<EOF > "$DESKTOP_FILE"
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PymeShield
+Comment=Consola de Ciberseguridad local PymeShield
+Exec=$(pwd)/Iniciar_PymeShield.sh
+Icon=$(pwd)/pymeshield.ico
+Terminal=true
+StartupNotify=true
+Categories=Utility;Security;
+EOF
+    chmod +x "$DESKTOP_FILE"
+    if command -v gio &> /dev/null; then
+        gio set "$DESKTOP_FILE" metadata::trusted true &> /dev/null
+    fi
+    echo "[+] Acceso directo creado en el Escritorio de Linux."
+fi
+
 echo ""
 echo "======================================================"
 echo "  CONFIGURACION COMPLETADA CON EXITO (Linux)          "
