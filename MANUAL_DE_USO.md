@@ -6,7 +6,9 @@ Este manual describe el proceso de puesta en marcha (activación) y el uso opera
 
 ## 1. Instalación y Configuración Inicial (Primer Uso)
 
-Para facilitar la adopción masiva en PYMEs, Colegios y CESFAM, PymeShield cuenta con un **Asistente de Instalación Automatizado**.
+Para facilitar la adopción masiva en PYMEs, Colegios y CESFAM, PymeShield cuenta con asistentes de instalación automatizados para entornos Windows y Linux.
+
+### A. Instalación en Windows (.bat)
 
 1. **Copiar la carpeta**: Conecte el pendrive y copie la carpeta **`ProyectoPymeShield`** completa en el computador local (ej. en el Escritorio).
 2. **Iniciar el Asistente (Permisos de Administrador)**: Abra la carpeta, haga **clic derecho** sobre el archivo **`Instalar_PymeShield.bat`** y seleccione **"Ejecutar como administrador"**. Esto es obligatorio para otorgar los privilegios necesarios de Windows para que el asistente pueda descargar e instalar Node.js de fondo en silencio.
@@ -21,22 +23,42 @@ Para facilitar la adopción masiva en PYMEs, Colegios y CESFAM, PymeShield cuent
    * *[1] Instalación Automática (Recomendado):* Descargará e instalará Node.js de forma silenciosa en segundo plano directamente desde `nodejs.org`.
    * *[2] Instalación Manual (Seguro):* Abrirá la web oficial de Node.js en su navegador para que lo instale usted mismo si prefiere un control directo de seguridad.
    * *[3] Cancelar:* Cancela y sale del asistente de instalación.
-6. **Configuración de Dependencias y Base de Datos:**
+5. **Configuración de Dependencias y Base de Datos:**
    Tras validar Node.js, el asistente instalará las dependencias de software y sincronizará la base de datos SQLite local de forma automatizada.
-7. **Acceso Directo en el Escritorio:**
+6. **Acceso Directo en el Escritorio:**
    El asistente creará automáticamente un acceso directo llamado **`PymeShield`** en su Escritorio de Windows y levantará la aplicación por primera vez en su navegador (`http://localhost:3000`).
 
----
+### B. Instalación en Linux Nativo (.sh)
+
+Si el cliente posee un equipo con sistema operativo Linux (como Ubuntu, Debian o Kali Linux), la instalación es igualmente automatizada mediante Shell Scripts:
+
+1. **Copiar la carpeta**: Copie la carpeta del proyecto en la máquina virtual o computador local.
+2. **Otorgar permisos de ejecución**: Abra la terminal en la carpeta del proyecto y ejecute los siguientes comandos (esencial para que Linux permita correr los asistentes):
+   ```bash
+   chmod +x Instalar_PymeShield.sh
+   chmod +x Iniciar_PymeShield.sh
+   ```
+3. **Ejecutar el Asistente**: Ejecute el instalador con el comando:
+   ```bash
+   ./Instalar_PymeShield.sh
+   ```
+4. **Instalación Automática Silenciosa**: El asistente detectará si falta Node.js o NPM, y los instalará de forma silenciosa y automática en segundo plano sin requerir interacción del usuario (evitando pantallas de configuración de sistema).
+5. **Sincronización de Base de Datos**: Descargará las librerías necesarias de desarrollo y sincronizará la base de datos local SQLite.
+6. **Acceso Directo en Linux**: El script creará un lanzador directo llamado **`PymeShield.desktop`** en el Escritorio de Linux. Para usarlo, haga clic derecho sobre el icono en su Escritorio y seleccione **"Marcar como ejecutable"** (o **"Trust this launcher"**).
 
 ## 2. Puesta en Marcha y Uso Diario
 
 Una vez completada la instalación inicial, el uso cotidiano es extremadamente sencillo y no requiere volver a abrir la carpeta de archivos del proyecto:
 
-1. **Iniciar el sistema**: Vaya a su **Escritorio de Windows** y haga **doble clic** en el acceso directo de **`PymeShield`** (o en el archivo `Iniciar PymeShield.bat` dentro de la carpeta).
-2. **Acceso automático**: Se abrirá una ventana en segundo plano que liberará el puerto de red, ejecutará la plataforma y abrirá automáticamente su navegador web favorito en: `http://localhost:3000`.
+### A. Inicio rápido en Windows
+1. Vaya a su **Escritorio de Windows** y haga **doble clic** en el acceso directo de **`PymeShield`** (o en el archivo `Iniciar PymeShield.bat` dentro de la carpeta).
+2. Se abrirá una ventana en segundo plano que liberará el puerto de red, ejecutará la plataforma y abrirá automáticamente su navegador web favorito en: `http://localhost:3000`.
 3. **Detener el sistema**: Para cerrar la plataforma, simplemente cierre la ventana de comandos negra que se ejecuta en segundo plano.
 
----
+### B. Inicio rápido en Linux
+1. Vaya a su **Escritorio de Linux** y haga **doble clic** en el acceso directo de **`PymeShield`** (o abra la terminal y ejecute `./Iniciar_PymeShield.sh`).
+2. Se abrirá la terminal de comandos de Linux y el navegador Firefox en `http://localhost:3000`.
+3. **Detener el sistema**: Cierre la ventana de la terminal de Linux donde corre el servidor de Node.js.
 
 ## 3. Guía de Uso del Panel de Control (Dashboard)
 
@@ -109,11 +131,13 @@ Para configurar las políticas avanzadas de la herramienta, navegue a la pestañ
 * **La ventana negra del `.bat` se cierra sola al instante**:
   Asegúrese de haber instalado Node.js en el sistema. Si ya lo instaló, reinicie la computadora para que Windows actualice las rutas del sistema y vuelva a intentarlo.
 * **El navegador web no se abre automáticamente**:
-  Abra su navegador de preferencia (Chrome, Edge, Firefox) e ingrese manualmente la dirección: `http://localhost:3000`.
+  Abo su navegador de preferencia (Chrome, Edge, Firefox) e ingrese manualmente la dirección: `http://localhost:3000`.
 * **No detecta mis dispositivos de red reales**:
   Asegúrese de que el switch de **"Modo Demostración"** en la barra superior esté desactivado. En modo demostración, el sistema mezcla dispositivos reales con simulados para fines de presentación académica. Desactívelo si desea auditar estrictamente su red de producción real.
-
----
+* **Error 'Permission denied' al intentar iniciar en Linux**:
+  Asegúrese de haber otorgado los permisos de ejecución a los archivos antes de correrlos escribiendo en la terminal: `chmod +x *.sh`.
+* **Error 'npm: command not found' o similar en Linux**:
+  Asegúrese de que el gestor de paquetes de su distribución esté al día. En Debian/Ubuntu/Kali, ejecute `sudo apt-get update && sudo apt-get install -y npm` y luego vuelva a correr el instalador.
 
 ## 5. Anexo Técnico: Despliegue Avanzado con Docker (Linux / Servidores)
 
