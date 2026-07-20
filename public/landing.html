@@ -256,9 +256,9 @@
                             <p class="plan-desc">Ideal para microempresas y locales comerciales únicos.</p>
                         </div>
                         <div class="price-box">
-                            <span class="uf-price" data-uf="1.5">1.5 UF</span>
+                            <span class="uf-price" data-uf="0.8">0.8 UF</span>
                             <span class="billing">/ mes + IVA</span>
-                            <div class="clp-price" id="clp-starter">$57.000 CLP</div>
+                            <div class="clp-price" id="clp-starter">$29.990 CLP</div>
                         </div>
                         <ul class="plan-features">
                             <li><span class="check">✓</span> 1 Appliance Virtual (PymeShield Box)</li>
@@ -269,7 +269,7 @@
                             <li class="disabled"><span class="cross">✗</span> Alertas SOAR / Webhooks personalizados</li>
                         </ul>
                         <div class="card-footer">
-                            <button class="btn btn-block btn-outline" onclick="selectPlan('PYME Starter', 1.5)">Seleccionar Plan</button>
+                            <button class="btn btn-block btn-outline" onclick="selectPlan('PYME Starter', 0.8)">Seleccionar Plan</button>
                         </div>
                     </div>
 
@@ -281,9 +281,9 @@
                             <p class="plan-desc">Para empresas en crecimiento con múltiples sedes y servidores.</p>
                         </div>
                         <div class="price-box">
-                            <span class="uf-price" data-uf="3.5">3.5 UF</span>
+                            <span class="uf-price" data-uf="1.6">1.6 UF</span>
                             <span class="billing">/ mes + IVA</span>
-                            <div class="clp-price" id="clp-multi">$133.000 CLP</div>
+                            <div class="clp-price" id="clp-multi">$59.990 CLP</div>
                         </div>
                         <ul class="plan-features">
                             <li><span class="check">✓</span> Hasta 3 Appliances Box (Físicos o Virtuales)</li>
@@ -294,7 +294,7 @@
                             <li><span class="check">✓</span> Soporte técnico prioritario 8x5</li>
                         </ul>
                         <div class="card-footer">
-                            <button class="btn btn-block btn-neon-blue glow-blue" onclick="selectPlan('Multi-Sucursal', 3.5)">Seleccionar Plan</button>
+                            <button class="btn btn-block btn-neon-blue glow-blue" onclick="selectPlan('Multi-Sucursal', 1.6)">Seleccionar Plan</button>
                         </div>
                     </div>
 
@@ -390,7 +390,7 @@
                             <div class="form-group">
                                 <label for="form-plan">Plan Seleccionado</label>
                                 <select id="form-plan" required>
-                                    <option value="PYME Starter">PYME Starter (1.5 UF/mes)</option>
+                                    <option value="PYME Starter">PYME Starter (0.8 UF/mes)</option>
                                     <option value="Multi-Sucursal" selected>Multi-Sucursal (3.5 UF/mes)</option>
                                     <option value="Institucional">Institucional (A Medida)</option>
                                 </select>
@@ -500,8 +500,8 @@
             }
 
             // Plans UF value
-            const starterUF = 1.5;
-            const multiUF = 3.5;
+            const starterUF = 0.8;
+            const multiUF = 1.6;
 
             // Compute CLP
             const starterCLP = Math.round(starterUF * ufVal);
