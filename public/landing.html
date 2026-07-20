@@ -532,6 +532,13 @@
         async function submitForm(event) {
             event.preventDefault();
             
+            // Simular éxito en modo demo estático offline o GitHub Pages
+            if (window.location.hostname.includes('github.io') || window.location.protocol === 'file:') {
+                document.getElementById('quote-form').style.display = 'none';
+                document.getElementById('form-success').style.display = 'block';
+                return;
+            }
+            
             const name = document.getElementById('form-name').value;
             const email = document.getElementById('form-email').value;
             const company = document.getElementById('form-company').value;
